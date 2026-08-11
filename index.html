@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NovaEM — Full-Chip Temperature-Aware Multiphysics EM/TM/IR-Drop Analysis</title>
+<meta name="description" content="NovaEM is a full-chip multiphysics framework for coupled electromigration (EM), thermomigration (TM), and IR-drop analysis of power-grid networks under realistic spatial thermal fields, with Monte Carlo lifetime prediction and Synopsys sign-off integration." />
+<meta name="author" content="Noveety AI, Inc." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Noveety AI" />
+<meta property="og:title" content="NovaEM — Full-Chip Temperature-Aware Multiphysics EM/TM/IR-Drop Analysis" />
+<meta property="og:description" content="Coupled electromigration, thermomigration, and IR-drop analysis for full-chip power grids — realistic thermal maps, resistance feedback, and Monte Carlo lifetime prediction." />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%233b6cff'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4'/%3E%3Cpath d='M12 6.4l1.75 3.85L17.6 12l-3.85 1.75L12 17.6l-1.75-3.85L6.4 12l3.85-1.75z' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#0b0f1a;
+    --bg-soft:#11182b;
+    --panel:#ffffff;
+    --ink:#1a2236;
+    --ink-soft:#475069;
+    --muted:#6b7488;
+    --line:#e3e8f2;
+    --brand:#3b6cff;
+    --brand-2:#00c2a8;
+    --accent:#ff7a45;
+    --hot:#ff4d4d;
+    --warm:#ffb020;
+    --cool:#3b6cff;
+    --shadow:0 12px 40px rgba(16,28,60,.10);
+    --radius:16px;
+    --maxw:1140px;
+    font-feature-settings:"tnum" 1;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--panel);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{line-height:1.2;letter-spacing:-.02em;margin:0 0 .4em}
+  h2{font-size:clamp(1.6rem,3vw,2.3rem)}
+  h3{font-size:1.18rem}
+  p{margin:0 0 1em}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.16em;font-size:.78rem;font-weight:700;
+    color:var(--brand);margin-bottom:.6em;
+  }
+  .muted{color:var(--muted)}
+
+  /* ---------- Nav ---------- */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,15,26,.82);backdrop-filter:saturate(160%) blur(12px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;letter-spacing:-.02em;font-size:1.15rem}
+  .brand .logo{
+    width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    box-shadow:0 6px 18px rgba(59,108,255,.45);
+  }
+  .brand .logo svg{width:18px;height:18px}
+  .nav-links{display:flex;gap:26px;align-items:center}
+  .nav-links a{color:#c5cde0;font-size:.93rem;font-weight:500}
+  .nav-links a:hover{color:#fff;text-decoration:none}
+  .nav-cta{
+    background:var(--brand);color:#fff;padding:9px 16px;border-radius:10px;font-weight:600;font-size:.9rem;
+  }
+  .nav-cta:hover{background:#2f5ce0;text-decoration:none}
+  @media(max-width:820px){.nav-links a:not(.nav-cta){display:none}}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;color:#eef2fb;
+    background:radial-gradient(1200px 600px at 75% -10%,rgba(59,108,255,.28),transparent 60%),
+               radial-gradient(900px 500px at 5% 110%,rgba(0,194,168,.20),transparent 55%),
+               var(--bg);
+    padding:84px 0 96px;
+  }
+  .hero .grid-bg{position:absolute;inset:0;opacity:.5;
+    background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+    background-size:46px 46px;mask-image:linear-gradient(180deg,#000,transparent 85%);}
+  .hero-in{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  @media(max-width:900px){.hero-in{grid-template-columns:1fr;gap:36px}}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;
+    color:#bcd0ff;background:rgba(59,108,255,.14);border:1px solid rgba(59,108,255,.35);
+    padding:6px 13px;border-radius:999px;margin-bottom:22px;
+  }
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--brand-2);box-shadow:0 0 0 4px rgba(0,194,168,.25)}
+  .hero h1{font-size:clamp(2.1rem,4.6vw,3.5rem);color:#fff;margin-bottom:.32em}
+  .hero h1 .grad{background:linear-gradient(100deg,#7aa2ff,#43e8d0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .lede{font-size:1.16rem;color:#c5cee4;max-width:620px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;padding:13px 22px;border-radius:12px;font-size:.98rem;transition:transform .15s ease}
+  .btn:hover{text-decoration:none;transform:translateY(-2px)}
+  .btn-primary{background:linear-gradient(135deg,var(--brand),#5b86ff);color:#fff;box-shadow:0 10px 30px rgba(59,108,255,.4)}
+  .btn-ghost{background:rgba(255,255,255,.07);color:#eaf0ff;border:1px solid rgba(255,255,255,.18)}
+  .hero-stats{display:flex;gap:30px;margin-top:40px;flex-wrap:wrap}
+  .hstat .n{font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:-.02em}
+  .hstat .l{font-size:.82rem;color:#9fb0d0}
+
+  /* Hero panel / mini chip viz */
+  .chip-card{
+    background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:22px;
+    box-shadow:0 30px 60px rgba(0,0,0,.4);
+  }
+  .chip-card h4{margin:0 0 4px;color:#fff;font-size:.95rem;letter-spacing:-.01em}
+  .chip-card .sub{color:#93a2c4;font-size:.78rem;margin-bottom:14px}
+  .legend{display:flex;gap:14px;margin-top:14px;font-size:.74rem;color:#aab8d8;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  /* ---------- Sections ---------- */
+  section{padding:84px 0}
+  .section-head{max-width:720px;margin-bottom:48px}
+  .section-head.center{margin-left:auto;margin-right:auto;text-align:center}
+  .section-head p{font-size:1.08rem;color:var(--ink-soft)}
+  .soft{background:linear-gradient(180deg,#f6f8fd,#eef2fa)}
+
+  /* Capability cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:900px){.cards{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.cards{grid-template-columns:1fr}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:#cfd9f0}
+  .card .ic{
+    width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+    background:linear-gradient(135deg,rgba(59,108,255,.12),rgba(0,194,168,.12));color:var(--brand);
+  }
+  .card .ic svg{width:24px;height:24px}
+  .card h3{margin-bottom:.35em}
+  .card p{font-size:.95rem;color:var(--ink-soft);margin:0}
+  .card.feature{grid-column:1/-1;display:flex;gap:22px;align-items:center;
+    background:linear-gradient(135deg,rgba(59,108,255,.07),rgba(0,194,168,.07));border-color:#cfdcff}
+  .card.feature .ic{flex:0 0 46px;margin-bottom:0}
+  .card.feature .ftxt{flex:1}
+  .card.feature .tagline{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--brand-2);background:rgba(0,194,168,.12);padding:3px 9px;border-radius:6px;margin-bottom:9px}
+  @media(max-width:620px){.card.feature{flex-direction:column;align-items:flex-start;gap:16px}}
+
+  /* Technique / how it works */
+  .flow{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  @media(max-width:880px){.flow{grid-template-columns:1fr}}
+  .steps{counter-reset:step;display:flex;flex-direction:column;gap:14px}
+  .step{display:flex;gap:16px;padding:18px 20px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+  .step .num{
+    counter-increment:step;flex:0 0 34px;height:34px;border-radius:9px;display:grid;place-items:center;
+    background:var(--ink);color:#fff;font-weight:700;font-size:.9rem;
+  }
+  .step h4{margin:0 0 3px;font-size:1rem}
+  .step p{margin:0;font-size:.9rem;color:var(--ink-soft)}
+
+  .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  @media(max-width:620px){.tech-grid{grid-template-columns:1fr}}
+  .tech{padding:20px 22px;border-radius:14px;border:1px solid var(--line);background:#fff}
+  .tech .tag{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-2);background:rgba(0,194,168,.1);padding:3px 9px;border-radius:6px;display:inline-block;margin-bottom:10px}
+  .tech h4{margin:0 0 6px;font-size:1.02rem}
+  .tech p{margin:0;font-size:.9rem;color:var(--ink-soft)}
+  code{font-family:"SF Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;background:#eef2fb;border:1px solid #e0e6f2;border-radius:5px;padding:1px 6px;color:#2a3654}
+
+  /* Results */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);background:#fff}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px}
+  caption{caption-side:top;text-align:left;font-size:.85rem;color:var(--muted);padding:14px 18px 0}
+  thead th{
+    background:var(--bg-soft);color:#dfe6f7;font-weight:600;font-size:.8rem;
+    text-align:right;padding:13px 14px;white-space:nowrap;border-bottom:1px solid #1c2640;
+  }
+  thead th:first-child{text-align:left;border-top-left-radius:0}
+  tbody td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  tbody td:first-child{text-align:left;font-weight:600;color:var(--ink)}
+  tbody tr:hover{background:#f5f8ff}
+  tbody tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:600}
+  .pill.green{background:rgba(0,194,168,.14);color:#018a76}
+  .pill.red{background:rgba(255,77,77,.12);color:#d8302f}
+  .pill.blue{background:rgba(59,108,255,.12);color:#2f5ce0}
+
+  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+  @media(max-width:900px){.result-grid{grid-template-columns:1fr}}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .panel h3{margin-bottom:4px}
+  .panel .sub{font-size:.85rem;color:var(--muted);margin-bottom:18px}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:8px}
+  @media(max-width:760px){.kpi-row{grid-template-columns:1fr 1fr}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
+  .kpi .n{font-size:1.85rem;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+  .kpi .n .u{font-size:1rem;color:var(--brand);font-weight:700}
+  .kpi .l{font-size:.85rem;color:var(--ink-soft);margin-top:2px}
+
+  .insight{
+    display:flex;gap:14px;padding:18px 20px;border-radius:14px;margin-top:22px;
+    background:linear-gradient(135deg,rgba(59,108,255,.07),rgba(0,194,168,.07));
+    border:1px solid #dfe7fb;
+  }
+  .insight svg{flex:0 0 22px;width:22px;height:22px;color:var(--brand);margin-top:2px}
+  .insight p{margin:0;font-size:.92rem;color:var(--ink-soft)}
+  .insight b{color:var(--ink)}
+
+  /* CTA band */
+  .cta-band{
+    color:#fff;border-radius:24px;padding:54px;text-align:center;position:relative;overflow:hidden;
+    background:radial-gradient(700px 300px at 50% -40%,rgba(0,194,168,.35),transparent 60%),
+               linear-gradient(135deg,#16203a,#0b1020 90%);
+    background-color:var(--bg);
+  }
+  .cta-band h2{color:#fff}
+  .cta-band p{color:#bcc7e0;max-width:560px;margin:0 auto 26px}
+
+  /* Footer */
+  footer{background:var(--bg);color:#aeb9d4;padding:56px 0 40px;border-top:1px solid rgba(255,255,255,.07)}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px}
+  @media(max-width:760px){.foot-grid{grid-template-columns:1fr}}
+  footer h4{color:#fff;font-size:.95rem;margin:0 0 12px}
+  footer a{color:#aeb9d4}
+  footer a:hover{color:#fff}
+  .foot-links{display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+  .cite{font-size:.82rem;color:#8794b4;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 18px;line-height:1.5}
+  .foot-bottom{margin-top:40px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.82rem;color:#7b88a8}
+
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+  .chip{font-size:.8rem;font-weight:500;color:#cdd6ea;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:5px 12px;border-radius:999px}
+
+  /* bar chart */
+  .bar-row{display:grid;grid-template-columns:120px 1fr 54px;align-items:center;gap:12px;margin-bottom:13px}
+  .bar-row .lab{font-size:.85rem;font-weight:600;color:var(--ink)}
+  .bar-track{height:14px;background:#eef2fb;border-radius:8px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+  .bar-row .val{font-size:.85rem;font-weight:700;color:var(--brand);text-align:right}
+
+  /* gallery */
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:900px){.gallery{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.gallery{grid-template-columns:1fr}}
+  figure.shot{
+    margin:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    box-shadow:var(--shadow);transition:transform .18s ease;display:flex;flex-direction:column;
+  }
+  figure.shot:hover{transform:translateY(-4px)}
+  figure.shot .frame{
+    aspect-ratio:4/3;background:#0d1426;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;
+  }
+  figure.shot .frame img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
+  figure.shot figcaption{padding:14px 16px;font-size:.86rem;color:var(--ink-soft)}
+  figure.shot figcaption b{color:var(--ink);display:block;font-size:.92rem;margin-bottom:2px}
+  /* graceful placeholder when the image is not present yet */
+  figure.shot .ph{display:none;flex-direction:column;align-items:center;gap:8px;color:#8aa0d8;
+    font-size:.8rem;text-align:center;padding:20px}
+  figure.shot .ph svg{width:34px;height:34px;opacity:.6}
+  figure.shot.missing .frame img{display:none}
+  figure.shot.missing .frame{background:linear-gradient(135deg,#121a30,#0d1426)}
+  figure.shot.missing .ph{display:flex}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/><path d="M12 6.4l1.75 3.85L17.6 12l-3.85 1.75L12 17.6l-1.75-3.85L6.4 12l3.85-1.75z" stroke-width="1.5"/></svg>
+      </span>
+      NovaEM
+    </a>
+    <nav class="nav-links">
+      <a href="#capabilities">Capabilities</a>
+      <a href="#how">How it works</a>
+      <a href="#results">Results</a>
+      <a href="#benchmarks">Benchmarks</a>
+      <a href="mailto:noveetyai@noveetymanagement.com?subject=NovaEM%20%E2%80%94%20Access%20Request" class="nav-cta">Contact to Access</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="grid-bg"></div>
+  <div class="wrap hero-in">
+    <div>
+      <span class="badge"><span class="dot"></span> Full-chip multiphysics reliability sign-off</span>
+      <h1>Temperature-aware <span class="grad">EM, TM &amp; IR-drop</span> analysis for the full chip</h1>
+      <p class="lede">
+        NovaEM is a multiphysics framework for coupled <strong>electromigration</strong>,
+        <strong>thermomigration</strong>, and <strong>IR-drop</strong> analysis of real power-grid
+        networks — driven by realistic spatial thermal maps, Joule heating, iterative resistance
+        feedback, and Monte&nbsp;Carlo lifetime prediction.
+      </p>
+      <div class="hero-cta">
+        <a href="#results" class="btn btn-primary">
+          See the results
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#how" class="btn btn-ghost">How it works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="n">1.18&ndash;1.50&times;</div><div class="l">Krylov speedup, zero metric error</div></div>
+        <div class="hstat"><div class="n">6</div><div class="l">industrial-scale designs validated</div></div>
+        <div class="hstat"><div class="n">10,900</div><div class="l">stress nodes per tree resolved</div></div>
+      </div>
+    </div>
+
+    <!-- mini chip thermal viz -->
+    <div class="chip-card">
+      <h4>Full-chip stress &amp; void map</h4>
+      <div class="sub">Coupled EM/TM stress over an extracted power grid</div>
+      <svg viewBox="0 0 320 220" width="100%" role="img" aria-label="Illustrative full-chip stress and void distribution map">
+        <defs>
+          <linearGradient id="hot" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3b6cff"/><stop offset=".5" stop-color="#ffb020"/><stop offset="1" stop-color="#ff4d4d"/>
+          </linearGradient>
+          <radialGradient id="hs1" cx="30%" cy="72%" r="40%"><stop offset="0" stop-color="#ff4d4d" stop-opacity=".9"/><stop offset="1" stop-color="#ff4d4d" stop-opacity="0"/></radialGradient>
+          <radialGradient id="hs2" cx="68%" cy="40%" r="46%"><stop offset="0" stop-color="#ffb020" stop-opacity=".75"/><stop offset="1" stop-color="#ffb020" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect x="8" y="8" width="304" height="204" rx="10" fill="#0d1426" stroke="rgba(255,255,255,.12)"/>
+        <rect x="8" y="8" width="304" height="204" rx="10" fill="url(#hs2)"/>
+        <rect x="8" y="8" width="304" height="204" rx="10" fill="url(#hs1)"/>
+        <!-- grid lines = power grid -->
+        <g stroke="rgba(255,255,255,.18)" stroke-width="1">
+          <path d="M8 50 H312 M8 92 H312 M8 134 H312 M8 176 H312"/>
+          <path d="M58 8 V212 M108 8 V212 M158 8 V212 M208 8 V212 M258 8 V212"/>
+        </g>
+        <!-- void nucleation sites -->
+        <g>
+          <circle cx="70" cy="160" r="6" fill="#fff"/><circle cx="70" cy="160" r="6" fill="none" stroke="#ff4d4d" stroke-width="2"/>
+          <circle cx="108" cy="134" r="5" fill="#fff"/><circle cx="108" cy="134" r="5" fill="none" stroke="#ff4d4d" stroke-width="2"/>
+          <circle cx="208" cy="92" r="5" fill="#fff"/><circle cx="208" cy="92" r="5" fill="none" stroke="#ffb020" stroke-width="2"/>
+          <circle cx="158" cy="176" r="4" fill="#fff"/><circle cx="158" cy="176" r="4" fill="none" stroke="#ff4d4d" stroke-width="2"/>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:#3b6cff"></i>low stress</span>
+        <span><i style="background:#ffb020"></i>tensile</span>
+        <span><i style="background:#ff4d4d"></i>nucleation hotspot</span>
+        <span><i style="background:#fff;border:2px solid #ff4d4d;border-radius:50%"></i>void site</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW / WHY -->
+<section class="soft" id="overview">
+  <div class="wrap">
+    <div class="section-head center">
+      <div class="eyebrow">Why NovaEM</div>
+      <h2>The first full-chip EM-IR flow that treats thermal structure as a first-order effect</h2>
+      <p>
+        Traditional EM models (Black's equation, Blech's limit) are over-conservative, and even
+        physics-based Korhonen solvers usually assume a uniform die temperature. NovaEM closes that
+        gap — it jointly incorporates Joule heating, practical chip-level thermal maps, coupled EM/TM
+        stress evolution, iterative resistance feedback, and Monte&nbsp;Carlo lifetime prediction in a single
+        sign-off-ready flow.
+      </p>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">EM&nbsp;+&nbsp;TM&nbsp;+&nbsp;IR</div><div class="l">Coupled multiphysics, not isolated Korhonen solves</div></div>
+      <div class="kpi"><div class="n">0<span class="u">%</span></div><div class="l">Krylov metric error vs. full FDTD reference</div></div>
+      <div class="kpi"><div class="n">100</div><div class="l">Monte Carlo samples per design for statistical TTF</div></div>
+      <div class="kpi"><div class="n">EDA</div><div class="l">Open-source OpenROAD + Synopsys ICC / Fusion Compiler</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section id="capabilities">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Capabilities</div>
+      <h2>What NovaEM can do</h2>
+      <p>A complete design-to-failure pipeline for power-grid reliability, built for realistic full-chip designs.</p>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg></div>
+        <h3>Coupled EM / TM / IR-drop</h3>
+        <p>Solves the discretized Korhonen stress equation coupled with an MNA IR-drop solver, capturing electromigration and thermomigration together with the electrical network.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M3 21h18"/></svg></div>
+        <h3>Realistic spatial thermal maps</h3>
+        <p>Accepts external chip-level temperature maps (including real measured profiles) instead of assuming a uniform die — spatial hotspot alignment can dominate average temperature in setting reliability.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.7V17a2 2 0 002 2h4a2 2 0 002-2v-2.3A7 7 0 0012 2z"/><path d="M9 21h6"/></svg></div>
+        <h3>Joule self-heating</h3>
+        <p>Computes per-node, per-segment wire temperature from current density and path resistance, resolving localized self-heating peaks superimposed on the ambient field.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg></div>
+        <h3>Iterative resistance feedback</h3>
+        <p>Closes the electrical–thermal–reliability loop: void-driven resistance changes are written back to the netlist so every IR-drop solve reflects the current aging state of the grid.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M8 8h2M8 12h6M14 8h2"/></svg></div>
+        <h3>Monte Carlo lifetime prediction</h3>
+        <p>Re-runs the full pipeline across sampled material parameters to produce TTF <em>distributions</em>, not just a single number — revealing strongly design-dependent variation sensitivity.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></div>
+        <h3>Synopsys &amp; OpenROAD integration</h3>
+        <p>Operates on power-grid netlists from both the open-source <strong>OpenROAD</strong> flow and Synopsys ICC / Fusion Compiler, retaining via resistances for accurate early-failure assessment — validated on six industrial-scale designs.</p>
+      </div>
+      <div class="card feature">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg></div>
+        <div class="ftxt">
+          <span class="tagline">Agentic-ready</span>
+          <h3>Fully agentic-flow aware</h3>
+          <p>A scriptable command-line interface and structured data interface make NovaEM fully agentic-flow aware — it plugs into any agentic EDA flow to drive automated, closed-loop IR-drop and EM sign-off analysis, with every input and output exposed for programmatic control by AI agents and orchestration scripts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="soft" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Inside the framework</div>
+      <h2>How the analysis flows</h2>
+      <p>From extracted netlist to aging trajectory in a single coupled loop — with optional steady-state screening and Krylov acceleration on the heavy trees.</p>
+    </div>
+    <div class="flow">
+      <div class="steps">
+        <div class="step"><div class="num"></div><div><h4>Parse inputs</h4><p>Power-grid netlist, a YAML of material/solver parameters, and an optional spatial thermal map.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>Immortality screening</h4><p>An optional steady-state pass prunes trees that can never fail, concentrating compute on mortal trees.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>IR-drop + thermal solve</h4><p>MNA returns nodal voltages and branch current densities; the thermal field is loaded and cached per step.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>Transient stress (FDTD)</h4><p>Per tree, the solver evolves hydrostatic stress, tracks void nucleation &amp; growth — big trees via rational Krylov, small trees via backward Euler.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>Resistance update &amp; loop</h4><p>Via-aware early/late failure updates are written back to the netlist, closing the loop into the next aging step.</p></div></div>
+      </div>
+      <div>
+        <div class="tech-grid">
+          <div class="tech">
+            <span class="tag">Acceleration</span>
+            <h4>Rational Krylov subspace</h4>
+            <p>Projects each <em>n</em>-node stress system onto an order-<em>q</em> subspace (<code>q&nbsp;&lt;&lt;&nbsp;n</code>). A shifted resolvent regularizes the Neumann singularity for stable convergence, dispatched only when <code>n&nbsp;&ge;&nbsp;max(3q,30)</code>.</p>
+          </div>
+          <div class="tech">
+            <span class="tag">Novelty</span>
+            <h4>Robin-BC mid-tree nucleation</h4>
+            <p>Enforces the zero-flux void condition at interior junction nodes via a Robin stencil — no dynamic tree splitting or matrix re-meshing at runtime.</p>
+          </div>
+          <div class="tech">
+            <span class="tag">Accuracy</span>
+            <h4>Via-aware early failure</h4>
+            <p>Retains via resistances through netlist conversion and checks early-failure (open-circuit) conditions <em>continuously</em> during void growth, not just at nucleation.</p>
+          </div>
+          <div class="tech">
+            <span class="tag">Performance</span>
+            <h4>Cache, vectorize, batch-lift</h4>
+            <p>LRU basis caching, loop-free vectorized time stepping on uniform grids, and a single BLAS <code>dgemm</code> batch lift back to full space.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Results</div>
+      <h2>Spatial thermal structure changes the verdict</h2>
+      <p>Across real designs, equal-average thermal profiles produce different mortal-tree counts, void locations, and time-to-failure — proving that average temperature alone is insufficient for sign-off.</p>
+    </div>
+
+    <div class="result-grid">
+      <!-- RISC-V table -->
+      <div class="panel">
+        <h3>RISC-V core &mdash; thermal profile sweep</h3>
+        <div class="sub">186 trees · 4 metal layers · 0.95 V · TTF = time to cross the 10% IR-drop threshold</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Thermal profile</th><th>Avg&nbsp;(K)</th><th>Max&nbsp;(K)</th><th>Mortal</th><th>TTF&nbsp;(s)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Uniform 353K</td><td>353.0</td><td>353.0</td><td>7</td><td>1.32&times;10⁷</td></tr>
+              <tr><td>Joule (avg 320K)</td><td>320.6</td><td>345.9</td><td>14</td><td>3.01&times;10⁷</td></tr>
+              <tr><td>Joule (avg 353K)</td><td>353.4</td><td>387.1</td><td>18</td><td>2.47&times;10⁷</td></tr>
+              <tr><td>Joule (avg 373K)</td><td>373.6</td><td>407.3</td><td>18</td><td>1.45&times;10⁷</td></tr>
+              <tr><td>Qualcomm (avg 309K)</td><td>309.6</td><td>336.9</td><td>12</td><td>1.87&times;10⁷</td></tr>
+              <tr><td>Qualcomm (avg 353K)</td><td>353.2</td><td>387.6</td><td>16</td><td><span class="pill green">no fail</span></td></tr>
+              <tr><td>Qualcomm (avg 373K)</td><td>373.4</td><td>407.7</td><td>16</td><td><span class="pill green">no fail</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="insight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+          <p>Two 353K maps with nearly identical max temperature (387.1K vs 387.6K) give <b>opposite outcomes</b> — the baseline map fails at ~9.4 months while the broad Qualcomm map never crosses the threshold, because its hotspot doesn't align with the critical current paths.</p>
+        </div>
+      </div>
+
+      <!-- ARM table -->
+      <div class="panel">
+        <h3>ARM Cortex-A logic core &mdash; thermal sweep</h3>
+        <div class="sub">208 trees · up to 10,900 nodes/tree · 1.2 V · deeply mortal current-density regime</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Thermal profile</th><th>Avg&nbsp;(K)</th><th>Max&nbsp;(K)</th><th>Mortal</th><th>TTF&nbsp;(s)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Uniform 353K</td><td>353.0</td><td>353.0</td><td>207</td><td>1.05&times;10⁷</td></tr>
+              <tr><td>Joule (avg 320K)</td><td>320.4</td><td>352.7</td><td>206</td><td>1.04&times;10⁷</td></tr>
+              <tr><td>Joule (avg 353K)</td><td>353.1</td><td>385.4</td><td>206</td><td>1.05&times;10⁷</td></tr>
+              <tr><td>Joule (avg 373K)</td><td>373.3</td><td>405.6</td><td>206</td><td>1.05&times;10⁷</td></tr>
+              <tr><td>Qualcomm (avg 309K)</td><td>309.6</td><td>341.8</td><td>206</td><td>1.01&times;10⁷</td></tr>
+              <tr><td>Qualcomm (avg 353K)</td><td>353.2</td><td>385.4</td><td>206</td><td>1.00&times;10⁷</td></tr>
+              <tr><td>Qualcomm (avg 373K)</td><td>373.4</td><td>405.6</td><td>206</td><td>1.00&times;10⁷</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="insight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+          <p>With ~206 deeply mortal trees, M1 current densities push nearly the entire grid far past the nucleation threshold. The TTF stays clamped near <b>10⁷ s</b> even as max temperature ranges over 60K — a regime where the failure time is deterministic.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monte Carlo -->
+    <div class="result-grid" style="margin-top:28px">
+      <div class="panel">
+        <h3>Monte Carlo statistical lifetime</h3>
+        <div class="sub">100 samples · 20% CoV on EM diffusivity κ(x) and critical stress · 353K Joule map</div>
+        <div class="kpi-row" style="grid-template-columns:1fr 1fr">
+          <div class="kpi"><div class="n">15.77<span class="u">%</span></div><div class="l">TTF coefficient of variation — RISC-V core (18 mortal trees)</div></div>
+          <div class="kpi"><div class="n">0.0058<span class="u">%</span></div><div class="l">TTF coefficient of variation — ARM core (206 mortal trees)</div></div>
+        </div>
+        <div class="insight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+          <p>Variation sensitivity is <b>design-dependent</b>. Designs with a few <em>marginally</em> mortal trees benefit most from statistical analysis; deeply mortal designs are nearly deterministic. For RISC-V, 87/100 runs failed (TTF 0.60&ndash;1.23 yr) and 13 were censored at the simulation horizon.</p>
+        </div>
+      </div>
+
+      <!-- Speedup chart -->
+      <div class="panel">
+        <h3>Rational Krylov speedup</h3>
+        <div class="sub">Wall-clock vs. full FDTD reference · zero TTF / final-IR metric error</div>
+        <div style="margin-top:6px">
+          <div class="bar-row"><span class="lab">dual_ram</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="val">1.50&times;</span></div>
+          <div class="bar-row"><span class="lab">armcore_logic</span><div class="bar-track"><div class="bar-fill" style="width:86%"></div></div><span class="val">1.29&times;</span></div>
+          <div class="bar-row"><span class="lab">JPEG_new</span><div class="bar-track"><div class="bar-fill" style="width:84%"></div></div><span class="val">1.26&times;</span></div>
+          <div class="bar-row"><span class="lab">AES_new</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">1.21&times;</span></div>
+          <div class="bar-row"><span class="lab">risc_core</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">1.21&times;</span></div>
+          <div class="bar-row"><span class="lab">armcore_pad</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div><span class="val">1.18&times;</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS GALLERY -->
+<section class="soft" id="gallery">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Result gallery</div>
+      <h2>From layout to failure, visualized</h2>
+      <p>Actual NovaEM output on the RISC-V and ARM Cortex-A power grids — extracted grids, coupled EM/TM stress maps, IR-drop maps, input thermal fields, and Monte&nbsp;Carlo lifetime distributions.</p>
+    </div>
+    <div class="gallery">
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/risc_core_finished_layout.png" alt="RISC-V core finished physical layout" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>RISC-V core — finished layout</b>9 standard-cell blocks, 11 routing layers, ~0.104&nbsp;mm² die.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/risc_core_baseline_Design.png" alt="Extracted VDD power grid structure" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>Extracted VDD power grid</b>Four metal layers (M1, M2, M7, M8) with VIA connections.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/risc_core_baseline_Thermal_Map_Scaled.png" alt="Input spatial temperature map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>Input spatial thermal map</b>Localized lower-left hotspot at 353&nbsp;K average (baseline case).</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/risc_core_strss_map_3D_353.png" alt="3D coupled EM/TM stress map with nucleation sites" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>3D EM/TM stress map (RISC-V)</b>18 mortal trees with void nucleation sites at 5&times;10⁷&nbsp;s.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/risc_core_pg_ir_drop_3d_353.png" alt="3D IR-drop map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>3D IR-drop map (RISC-V)</b>Degraded grid at t&nbsp;=&nbsp;2.5&times;10⁷&nbsp;s — 10% threshold crossed at ~9.4&nbsp;months.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/risc_core_stress_map_steady_state_353.png" alt="Steady-state stress without nucleation" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>Steady-state stress (no nucleation)</b>Unbounded accumulation reveals the most EM-susceptible segments.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/armcore_baseline_Stress_Map.png" alt="ARM core stress map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>ARM Cortex-A stress map</b>206 nucleated trees with a strong central tensile band.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/armcore_baseline_Voltage_Drop_Map.png" alt="ARM core IR-drop map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>ARM Cortex-A IR-drop map</b>Max IR-drop 22.21%; failure at ~4.0&nbsp;months.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img loading="lazy" src="assets/figs/histogram_ttf_risc_core.png" alt="Monte Carlo TTF histogram for RISC-V" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
+        <figcaption><b>Monte Carlo TTF — RISC-V</b>100 runs, 20% CoV; 15.77% TTF CoV (87 failures, 13 censored).</figcaption>
+      </figure>
+    </div>
+    <p class="muted" style="margin-top:20px;font-size:.88rem">All figures are generated by NovaEM on Synopsys-extracted power grids (SAED32 32/28&nbsp;nm library).</p>
+  </div>
+</section>
+
+<!-- BENCHMARKS -->
+<section id="benchmarks">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Benchmarks</div>
+      <h2>Validated across six industrial-scale designs</h2>
+      <p>Power-grid networks extracted from Synopsys Fusion Compiler, synthesized and placed-and-routed with the SAED32 (Synopsys 32/28&nbsp;nm Generic) library.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <caption>Per-design statistics, IR-drop, time-to-failure, and Krylov acceleration. TTF&nbsp;&gt;&nbsp;5.0&times;10⁷&nbsp;s indicates the 10% threshold was not reached within the simulated horizon.</caption>
+        <thead>
+          <tr>
+            <th>Design</th><th>Trees</th><th>Max&nbsp;br.</th><th>Max&nbsp;nodes</th>
+            <th>Init&nbsp;IR&nbsp;%</th><th>Final&nbsp;IR&nbsp;%</th><th>TTF&nbsp;(s)</th>
+            <th>Mortal</th><th>Base&nbsp;(s)</th><th>Krylov&nbsp;(s)</th><th>Speedup</th><th>Err&nbsp;%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AES_new</td><td>97</td><td>69</td><td>3,450</td><td>6.14</td><td>6.86</td><td>&gt;5.0&times;10⁷</td><td>688</td><td>4.56</td><td>3.76</td><td><span class="pill blue">1.21&times;</span></td><td>0</td></tr>
+          <tr><td>armcore_pad</td><td>68</td><td>34</td><td>1,700</td><td>0.29</td><td>0.29</td><td>&gt;5.0&times;10⁷</td><td>0</td><td>2.35</td><td>1.99</td><td><span class="pill blue">1.18&times;</span></td><td>0</td></tr>
+          <tr><td>JPEG_new</td><td>178</td><td>126</td><td>6,300</td><td>6.56</td><td>6.77</td><td>&gt;5.0&times;10⁷</td><td>1,821</td><td>16.31</td><td>12.90</td><td><span class="pill blue">1.26&times;</span></td><td>0</td></tr>
+          <tr><td>armcore_logic</td><td>208</td><td>218</td><td>10,900</td><td>8.85</td><td>22.21</td><td>1.05&times;10⁷</td><td>206</td><td>40.60</td><td>31.48</td><td><span class="pill blue">1.29&times;</span></td><td>0</td></tr>
+          <tr><td>dual_ram</td><td>55</td><td>29</td><td>1,450</td><td>0.09</td><td>0.10</td><td>&gt;5.0&times;10⁷</td><td>179</td><td>2.32</td><td>1.55</td><td><span class="pill blue">1.50&times;</span></td><td>0</td></tr>
+          <tr><td>risc_core</td><td>186</td><td>115</td><td>5,750</td><td>6.19</td><td>29.64</td><td>2.47&times;10⁷</td><td>18</td><td>5.40</td><td>4.45</td><td><span class="pill blue">1.21&times;</span></td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:18px;font-size:.9rem">
+      The largest design (armcore_logic — 208 trees, up to 10,900 nodes) completes in ~31.5&nbsp;s with Krylov acceleration; the smallest (dual_ram) finishes in under 1.6&nbsp;s. risc_core's final IR-drop jumps from 6.19% to 29.64% with only 18 mortal trees, underscoring that a few high-current trees can dominate degradation.
+    </p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <div class="eyebrow" style="color:#7fe9d6">Get started</div>
+      <h2>Predictive full-chip EM-IR sign-off, unified</h2>
+      <p>Spatial thermal fields, resistance feedback, void-growth physics, and stochastic material variation — handled together, at full-chip scale.</p>
+      <div class="hero-cta" style="justify-content:center">
+        <a href="mailto:noveetyai@noveetymanagement.com?subject=NovaEM%20%E2%80%94%20Access%20Request" class="btn btn-primary">Contact to Access</a>
+        <a href="#results" class="btn btn-ghost">Explore the results</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#top" style="margin-bottom:14px">
+          <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/><path d="M12 6.4l1.75 3.85L17.6 12l-3.85 1.75L12 17.6l-1.75-3.85L6.4 12l3.85-1.75z" stroke-width="1.5"/></svg></span>
+          NovaEM
+        </a>
+        <p style="font-size:.92rem;max-width:360px">
+          A full-chip temperature-aware multiphysics framework for electromigration, thermomigration, and IR-drop analysis.
+        </p>
+        <div class="chips">
+          <span class="chip">Electromigration</span>
+          <span class="chip">Thermomigration</span>
+          <span class="chip">IR-drop</span>
+          <span class="chip">Monte Carlo TTF</span>
+          <span class="chip">Agentic CLI</span>
+          <span class="chip">Rational Krylov</span>
+          <span class="chip">OpenROAD</span>
+          <span class="chip">Synopsys ICC</span>
+          <span class="chip">Pure Python</span>
+        </div>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <div class="foot-links">
+          <a href="#capabilities">Capabilities</a>
+          <a href="#how">How it works</a>
+          <a href="#results">Results</a>
+          <a href="#benchmarks">Benchmarks</a>
+        </div>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <div class="foot-links">
+          <a href="mailto:noveetyai@noveetymanagement.com?subject=NovaEM%20%E2%80%94%20Access%20Request">Request access</a>
+          <a href="mailto:noveetyai@noveetymanagement.com?subject=NovaEM%20%E2%80%94%20Demo%20Request">Request a demo</a>
+          <a href="https://noveety-ai.com">Noveety&nbsp;AI</a>
+        </div>
+        <div class="cite" style="margin-top:16px">
+          NovaEM is the third-generation multiphysics EM/TM/IR engine from Noveety&nbsp;AI, validated on six industrial-scale power-grid designs.
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 Noveety AI, Inc. All rights reserved.</span>
+      <span>NovaEM&trade; — full-chip multiphysics EM/TM/IR-drop analysis.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
