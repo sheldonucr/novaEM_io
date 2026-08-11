@@ -138,21 +138,6 @@ mortal designs behave nearly deterministically.
 
 ---
 
-## Citation
-
-If you use NovaEM in your research, please cite:
-
-```bibtex
-@article{lu2026novaem,
-  title   = {A Full-Chip Temperature-Aware Multiphysics Framework for
-             Electromigration, Thermomigration, and IR-Drop Analysis},
-  author  = {Lu, Haotian and Tan, Sheldon X.-D.},
-  year    = {2026}
-}
-```
-
----
-
 ## Contact
 
 NovaEM is a product of **Noveety AI, Inc.** For access, licensing, or a technical walkthrough,
