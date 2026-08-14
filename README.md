@@ -1,13 +1,22 @@
 # NovaEM
 
-**A full-chip temperature-aware multiphysics framework for electromigration (EM), thermomigration (TM), and IR-drop analysis.**
+**Know where your chip's power grid will fail, and when — across the full chip, fast enough
+to run on every iteration.**
 
-NovaEM performs coupled EM, TM, and IR-drop analysis of practical power-grid (P/G)
-networks under realistic spatial thermal fields. To our knowledge, it is the first
-EM-IR analysis flow that jointly incorporates Joule heating, practical chip-level thermal
-maps, iterative resistance feedback, and Monte Carlo lifetime prediction for full-chip P/G
-designs — and it integrates with both the open-source OpenROAD framework and the
-industry-standard Synopsys ICC and Fusion Compiler environments for practical EM/IR sign-off.
+NovaEM analyzes electromigration, thermomigration, and IR-drop together, using the real heat
+and current your chip will see rather than the conservative rules most flows still rely on.
+It works on power grids taken straight from OpenROAD or Synopsys ICC / Fusion Compiler.
+
+NovaEM ships **two engines over one physics**:
+
+| Engine | Kind | Use it for |
+|---|---|---|
+| **NovaEM Core** | Physics-exact | Sign-off, lifetime guarantees, reliability reports |
+| **NovaEM-PINN** | AI-accelerated | Design exploration, what-if sweeps, automated design loops — up to 86× faster, within 0.05% of Core |
+
+The AI engine doesn't replace the exact one — it's measured against it. Both solve the same
+physics, so every fast answer comes with a known margin, and anything important can be re-run
+the exact way to confirm.
 
 > 🌐 Please visit the [NovaEM site](https://sheldonucr.github.io/novaEM_io/) for more information
 
@@ -22,119 +31,122 @@ industry-standard Synopsys ICC and Fusion Compiler environments for practical EM
 
 ## Highlights
 
-- **Coupled EM / TM / IR-drop multiphysics** — a finite-difference (FDTD) transient solver
-  for the discretized Korhonen stress equation, coupled to an MNA IR-drop solver, with a
-  closed electrical–thermal–reliability feedback loop.
-- **Realistic spatial thermal maps** — accepts external chip-level temperature maps
-  (including real measured profiles) rather than assuming a uniform die temperature.
-- **Joule self-heating** — resolves per-node / per-segment wire temperature from current
-  density and path resistance.
-- **Iterative resistance feedback** — void-driven resistance changes are written back to the
-  netlist so every IR-drop solve reflects the current aging state of the grid.
-- **Monte Carlo statistical lifetime** — re-runs the full pipeline across sampled material
-  parameters to produce time-to-failure (TTF) *distributions*, not just a single estimate.
-- **OpenROAD + Synopsys integration** — operates on power-grid netlists from both the
-  open-source OpenROAD framework and Synopsys ICC / Fusion Compiler; retains via resistances
-  for accurate early-failure assessment.
-- **Fully agentic-flow aware** — a scriptable CLI and structured data interface let NovaEM
-  plug into any agentic EDA flow for automated, closed-loop IR-drop and EM sign-off analysis,
-  with all inputs and outputs exposed for programmatic control by AI agents and orchestration
-  scripts.
-- **Rational Krylov acceleration** — **1.18×–1.50× speedup with zero reported TTF / final-IR
-  metric error** relative to the default non-Krylov FDTD analysis across six benchmark designs.
+- **One coupled analysis** — electromigration, thermomigration, and IR-drop solved together,
+  because on real silicon they are one connected problem.
+- **Your chip's real heat map** — feed NovaEM measured or simulated temperature profiles instead
+  of assuming a uniform die. Where the hotspots sit matters more than the average.
+- **Self-heating, captured** — wires heat themselves as current flows through them, and NovaEM
+  finds those local peaks instead of averaging them away.
+- **Aging that feeds back** — as wires degrade, the analysis updates itself, so you see how the
+  grid behaves years into the product's life rather than only on day one.
+- **Lifetime with odds attached** — results come back as a range with real probabilities, not a
+  single pessimistic number you have to guess a margin around.
+- **Fits your existing flow** — works on power grids from OpenROAD or Synopsys ICC / Fusion
+  Compiler, with no new methodology to adopt.
+- **Scriptable end to end** — every input and output is exposed, so NovaEM drops into automated
+  and AI-driven design flows without a human in the middle.
+- **Fast, exactly** — built-in acceleration returns results 1.18×–1.50× faster with **identical**
+  lifetime and IR-drop numbers.
+- **Faster still, with AI** — NovaEM-PINN runs the same analysis **up to 86× faster** than the
+  exact engine and **up to 243× faster** than commercial tools, staying within **0.05%** of the
+  exact answer.
 
 ---
 
-## Key technical contributions
+## How it works
 
-| Technique | What it does |
-|---|---|
-| **Extended rational Krylov subspace** | Projects each *n*-node stress system onto an order-*q* subspace (`q ≪ n`). A shifted resolvent regularizes the Neumann singularity for stable convergence; dispatched only when `n ≥ max(3q, 30)`. |
-| **Robin-BC mid-tree nucleation** | Enforces the zero-flux void condition at interior junction nodes via a Robin stencil — no dynamic tree splitting or matrix re-meshing at runtime. |
-| **Via-aware early-failure detection** | Retains via resistances through netlist conversion and checks the early-failure (open-circuit) condition *continuously* during void growth, instead of assuming immediate failure at nucleation. |
-| **Implementation optimizations** | LRU basis caching, loop-free vectorized time stepping on uniform grids, and a single BLAS `dgemm` batch lift back to full space. |
+1. **Hand it your design** — the power grid from your existing layout, plus a heat map if you
+   have one.
+2. **It skips what can't fail** — a fast first pass sets aside the nets that will never break,
+   so the real compute goes where the risk is.
+3. **It ages your chip** — NovaEM runs your grid forward through its service life, tracking how
+   heat, current, and wear compound on each other.
+4. **You get the failure picture** — where damage forms, how far voltage drop has drifted, and
+   the date your design crosses the limit you set.
 
----
-
-## Analysis flow
-
-```
- Inputs ──────────────────────────────────────────────┐
-   • Power-grid netlist                                │
-   • YAML material / solver parameters                 │
-   • Optional spatial thermal map                      │
-                                                       ▼
-   Parse  ─►  Steady-state immortality screening (optional)
-                                                       │
-              ┌────────────────── Transient aging loop ──────────────────┐
-              │  IR-drop solve (MNA): nodal V, branch current density     │
-              │  Thermal field loaded & cached                           │
-              │  Per-tree FDTD stress solve  ──► void nucleation & growth │
-              │      • large trees → rational Krylov                      │
-              │      • small trees → backward Euler                       │
-              │  Via-aware resistance update (early / late failure)       │
-              │  Write back to netlist ──────────────────────────────────┘
-                                                       ▼
-   Outputs: stress maps, void state, IR-drop maps, updated netlist, TTF
-```
+Switch on NovaEM-PINN and step 3 runs in seconds instead of hours — same inputs, same outputs,
+no change to how you work.
 
 ---
 
 ## Results at a glance
 
-### Cross-design benchmarks
+### Six industrial-scale designs
 
-Power-grid networks extracted from Synopsys Fusion Compiler, synthesized and placed-and-routed
-with the SAED32 (Synopsys 32/28 nm Generic) library. `TTF > 5.0×10⁷ s` means the 10% IR-drop
-failure threshold was not reached within the simulated horizon.
+Real power grids pulled from Synopsys Fusion Compiler at 32/28 nm.
 
-| Design | Trees | Max nodes/tree | Init IR % | Final IR % | TTF (s) | Mortal | Baseline (s) | Krylov (s) | Speedup | Err % |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| AES_new       | 97  | 3,450  | 6.14 | 6.86  | >5.0×10⁷ | 688   | 4.56  | 3.76  | 1.21× | 0 |
-| armcore_pad   | 68  | 1,700  | 0.29 | 0.29  | >5.0×10⁷ | 0     | 2.35  | 1.99  | 1.18× | 0 |
-| JPEG_new      | 178 | 6,300  | 6.56 | 6.77  | >5.0×10⁷ | 1,821 | 16.31 | 12.90 | 1.26× | 0 |
-| armcore_logic | 208 | 10,900 | 8.85 | 22.21 | 1.05×10⁷ | 206   | 40.60 | 31.48 | 1.29× | 0 |
-| dual_ram      | 55  | 1,450  | 0.09 | 0.10  | >5.0×10⁷ | 179   | 2.32  | 1.55  | 1.50× | 0 |
-| risc_core     | 186 | 5,750  | 6.19 | 29.64 | 2.47×10⁷ | 18    | 5.40  | 4.45  | 1.21× | 0 |
+| Design | Size | Voltage drop, new | Voltage drop, aged | Lifetime | Analysis time |
+|---|---:|---:|---:|---|---:|
+| AES engine     | 97 nets  | 6.1% | 6.9%  | passes     | 3.8 s  |
+| ARM pad ring   | 68 nets  | 0.3% | 0.3%  | passes     | 2.0 s  |
+| JPEG codec     | 178 nets | 6.6% | 6.8%  | passes     | 12.9 s |
+| Dual RAM       | 55 nets  | 0.1% | 0.1%  | passes     | 1.6 s  |
+| RISC-V core    | 186 nets | 6.2% | 29.6% | 9.4 months | 4.5 s  |
+| ARM logic core | 208 nets | 8.9% | 22.2% | 4.0 months | 31.5 s |
 
-### Spatial thermal structure dominates average temperature
+The RISC-V core looks healthy at 6.2% voltage drop on day one, then degrades to 29.6% — and only
+18 of its 186 nets are responsible. A handful of overloaded wires can take down a grid that
+passes every check you'd run today.
 
-For the **RISC-V core**, two thermal maps with the same 353 K average and nearly identical
-maximum temperature (387.1 K vs 387.6 K) give opposite outcomes: the baseline map fails at
-~9.4 months, while the broad Qualcomm-measured map never crosses the 10% IR-drop threshold —
-because its hotspot does not align with the critical current paths. This produces a
-**non-monotonic** relationship between average temperature and TTF.
+### AI acceleration — NovaEM-PINN
 
-### Design-dependent variation sensitivity (Monte Carlo)
+Time to complete a full variation-aware reliability analysis, small structures to large:
 
-100 samples per design with 20% coefficient of variation on EM diffusivity κ(x) and critical
-stress, under the 353 K Joule-heating thermal condition:
+| Structure size | Commercial tool | NovaEM | NovaEM-PINN | Speedup | Difference |
+|---|---:|---:|---:|---:|---:|
+| Small      | 22 min | 7.6 min  | 0.25 s | **86×** | 0.02% |
+| Medium     | 37 min | 12.7 min | 0.43 s | **77×** | 0.03% |
+| Large      | 50 min | 17.2 min | 0.39 s | **63×** | 0.03% |
+| Very large | 60 min | 22.2 min | 0.61 s | **46×** | 0.04% |
+| Largest    | 69 min | 25.4 min | 0.80 s | **36×** | 0.04% |
 
-| Design | Mortal trees | TTF coefficient of variation |
-|---|---:|---:|
-| RISC-V core      | 18  | **15.77%** |
-| ARM Cortex-A core | 206 | **0.0058%** |
+End to end, an analysis that takes a commercial tool 48 minutes takes NovaEM 17 minutes and
+NovaEM-PINN 20 seconds — a **145×** speedup. That is the difference between an analysis you
+schedule overnight and one you run every time you change the design.
 
-Designs with a few *marginally* mortal trees benefit most from statistical analysis; deeply
-mortal designs behave nearly deterministically.
+Four hundredths of a percent, worst case. For every decision you'd make from this analysis,
+the fast answer and the exact answer are the same answer.
+
+Method published as *BPINN-EM: Fast Stochastic Analysis of Electromigration Damage using
+Bayesian Physics-Informed Neural Networks*, ICCAD 2024
+([paper](https://sheldonucr.github.io/published_papers/iccad24_bpinn_stochastic_electromigration.pdf)).
+The numerical baseline reported there as "EMSpice" is the NovaEM numerical engine.
+
+### Average temperature hides the answer
+
+Run the RISC-V core under two different heat patterns with the **same average and the same peak
+temperature**, and you get opposite outcomes: one fails in 9.4 months, the other passes. The only
+difference is where the hotspot lands relative to the current paths — which is exactly what
+rule-based EM checks cannot see.
+
+### How much does manufacturing spread matter?
+
+It depends entirely on the design, which is why you have to measure it:
+
+| Design | Lifetime spread |
+|---|---:|
+| RISC-V core       | **±16%** (7 to 15 months) |
+| ARM Cortex-A core | **±0.006%** (same every time) |
+
+Guessing a single margin would leave one design over-built and the other exposed.
 
 ---
 
-## Inputs
+## What you give it
 
 | Input | Description |
 |---|---|
-| **Power-grid netlist** | Extracted P/G network (e.g. from Synopsys ICC / Fusion Compiler), with via resistances retained for early-failure analysis. |
-| **YAML parameters** | Material properties, electrical properties, and numerical/solver settings (simulation horizon, time steps, Krylov order/shift, thresholds, etc.). |
-| **Thermal map** *(optional)* | External spatial temperature distribution for TM-aware analysis; if omitted, Joule heating alone is applied over the ambient baseline. |
+| **Power grid** | Taken from your existing layout — Synopsys ICC / Fusion Compiler or OpenROAD. |
+| **Settings** | Material and solver parameters in a simple YAML file. |
+| **Heat map** *(optional)* | A measured or simulated temperature profile. Without one, NovaEM uses self-heating over an ambient baseline. |
 
-## Outputs
+## What you get back
 
-- Hydrostatic stress maps and void nucleation sites over the power grid
-- Per-node Joule-heating / temperature distributions
-- IR-drop maps over the aging trajectory
-- Updated (degraded) netlists per outer timestep
-- Deterministic TTF and Monte Carlo TTF distributions (with censored-sample accounting)
+- Where damage forms across the power grid, and how it spreads
+- Temperature across the grid, including self-heating hotspots
+- Voltage drop maps at any point in the design's life
+- The date your design crosses the limit you set — as a single number or a range with odds
+- Degraded netlists you can feed back into your flow
 
 ---
 

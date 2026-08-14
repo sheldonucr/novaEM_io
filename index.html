@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NovaEM — Full-Chip Temperature-Aware Multiphysics EM/TM/IR-Drop Analysis</title>
-<meta name="description" content="NovaEM is a full-chip multiphysics framework for coupled electromigration (EM), thermomigration (TM), and IR-drop analysis of power-grid networks under realistic spatial thermal fields, with Monte Carlo lifetime prediction and Synopsys sign-off integration." />
+<title>NovaEM — AI-Accelerated Chip Reliability Analysis</title>
+<meta name="description" content="NovaEM tells you where your chip's power grid will fail and when — covering electromigration, thermomigration, and IR-drop across the full chip. Two engines share the same physics: one exact enough to sign off on, one up to 86x faster for everyday use." />
 <meta name="author" content="Noveety AI, Inc." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Noveety AI" />
-<meta property="og:title" content="NovaEM — Full-Chip Temperature-Aware Multiphysics EM/TM/IR-Drop Analysis" />
-<meta property="og:description" content="Coupled electromigration, thermomigration, and IR-drop analysis for full-chip power grids — realistic thermal maps, resistance feedback, and Monte Carlo lifetime prediction." />
+<meta property="og:title" content="NovaEM — AI-Accelerated Chip Reliability Analysis" />
+<meta property="og:description" content="Know where your power grid will fail and when. One engine exact enough to sign off on, one up to 86x faster for every iteration." />
 <meta name="twitter:card" content="summary" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%233b6cff'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4'/%3E%3Cpath d='M12 6.4l1.75 3.85L17.6 12l-3.85 1.75L12 17.6l-1.75-3.85L6.4 12l3.85-1.75z' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E" />
 <style>
@@ -193,6 +193,10 @@
 
   .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
   @media(max-width:900px){.result-grid{grid-template-columns:1fr}}
+  /* grid items default to min-width:auto, which lets a wide table push the
+     column past its track and scroll the whole page — clamp so .table-wrap's
+     own overflow-x:auto takes over instead */
+  .result-grid>*,.cards>*,.engines>*,.kpi-row>*,.tech-grid>*{min-width:0}
   .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
   .panel h3{margin-bottom:4px}
   .panel .sub{font-size:.85rem;color:var(--muted);margin-bottom:18px}
@@ -266,6 +270,78 @@
   figure.shot.missing .frame img{display:none}
   figure.shot.missing .frame{background:linear-gradient(135deg,#121a30,#0d1426)}
   figure.shot.missing .ph{display:flex}
+
+  /* ---------- Hybrid engine split ---------- */
+  .engines{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:stretch}
+  @media(max-width:880px){.engines{grid-template-columns:1fr}}
+  .engine{
+    position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);
+    border-radius:var(--radius);padding:30px 28px 26px;box-shadow:var(--shadow);
+  }
+  .engine::before{content:"";position:absolute;top:0;left:0;right:0;height:4px}
+  .engine.num::before{background:linear-gradient(90deg,var(--brand),#7aa2ff)}
+  .engine.ai::before{background:linear-gradient(90deg,var(--brand-2),#43e8d0)}
+  .engine .kicker{
+    display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    padding:4px 10px;border-radius:6px;margin-bottom:12px;
+  }
+  .engine.num .kicker{color:var(--brand);background:rgba(59,108,255,.1)}
+  .engine.ai .kicker{color:#018a76;background:rgba(0,194,168,.13)}
+  .engine h3{font-size:1.32rem;margin-bottom:.25em}
+  .engine .role{font-size:.92rem;color:var(--ink-soft);margin:0 0 16px}
+  .engine ul{list-style:none;margin:0;padding:0;font-size:.92rem;color:var(--ink-soft)}
+  .engine li{position:relative;padding-left:24px;margin-bottom:9px}
+  .engine li::before{
+    content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;border-radius:3px;
+  }
+  .engine.num li::before{background:rgba(59,108,255,.35)}
+  .engine.ai li::before{background:rgba(0,194,168,.4)}
+  .engine li b{color:var(--ink)}
+  .engine .foot{
+    margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);
+    font-size:.84rem;color:var(--muted);
+  }
+  .handoff{
+    display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:20px 24px;border-radius:14px;
+    background:linear-gradient(135deg,rgba(59,108,255,.08),rgba(0,194,168,.08));border:1px solid #dfe7fb;
+  }
+  .handoff svg{flex:0 0 24px;width:24px;height:24px;color:var(--brand);margin-top:1px}
+  .handoff p{margin:0;font-size:.94rem;color:var(--ink-soft)}
+  .handoff b{color:var(--ink)}
+
+  /* AI section on dark ground */
+  .dark{
+    background:radial-gradient(900px 500px at 85% -20%,rgba(0,194,168,.20),transparent 60%),
+               radial-gradient(800px 500px at 0% 120%,rgba(59,108,255,.20),transparent 55%),
+               var(--bg);
+    color:#dfe6f7;
+  }
+  .dark h2,.dark h3,.dark h4{color:#fff}
+  .dark .section-head p{color:#b3c0dc}
+  .dark .eyebrow{color:#43e8d0}
+  .dark .panel{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.12);box-shadow:none;color:#c8d3ea}
+  .dark .panel .sub{color:#93a2c4}
+  .dark .table-wrap{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.03);box-shadow:none}
+  .dark caption{color:#93a2c4}
+  .dark thead th{background:rgba(255,255,255,.06);color:#dfe6f7;border-bottom-color:rgba(255,255,255,.14)}
+  .dark tbody td{border-bottom-color:rgba(255,255,255,.08);color:#c8d3ea}
+  .dark tbody td:first-child{color:#fff}
+  .dark tbody tr:hover{background:rgba(255,255,255,.04)}
+  .dark .kpi{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
+  .dark .kpi .n{color:#fff}
+  .dark .kpi .n .u{color:#43e8d0}
+  .dark .kpi .l{color:#a9b6d4}
+  .dark .insight{background:rgba(0,194,168,.09);border-color:rgba(0,194,168,.25)}
+  .dark .insight p{color:#c3d0e8}
+  .dark .insight b{color:#fff}
+  .dark .insight svg{color:#43e8d0}
+  .dark .bar-track{background:rgba(255,255,255,.09)}
+  .dark .bar-row .lab{color:#dfe6f7}
+  .dark .bar-row .val{color:#43e8d0}
+  .dark .muted{color:#8fa0c2}
+  .dark code{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:#cfe0ff}
+  .dark .pill.green{background:rgba(0,194,168,.18);color:#5fe9d3}
+  .dark .pill.blue{background:rgba(122,162,255,.18);color:#9fbaff}
 </style>
 </head>
 <body>
@@ -280,8 +356,10 @@
       NovaEM
     </a>
     <nav class="nav-links">
+      <a href="#engines">Engines</a>
       <a href="#capabilities">Capabilities</a>
       <a href="#how">How it works</a>
+      <a href="#ai">NovaEM-PINN</a>
       <a href="#results">Results</a>
       <a href="#benchmarks">Benchmarks</a>
       <a href="mailto:noveetyai@noveetymanagement.com?subject=NovaEM%20%E2%80%94%20Access%20Request" class="nav-cta">Contact to Access</a>
@@ -294,32 +372,32 @@
   <div class="grid-bg"></div>
   <div class="wrap hero-in">
     <div>
-      <span class="badge"><span class="dot"></span> Full-chip multiphysics reliability sign-off</span>
+      <span class="badge"><span class="dot"></span> Full-chip reliability, numerical + AI</span>
       <h1>Temperature-aware <span class="grad">EM, TM &amp; IR-drop</span> analysis for the full chip</h1>
       <p class="lede">
-        NovaEM is a multiphysics framework for coupled <strong>electromigration</strong>,
-        <strong>thermomigration</strong>, and <strong>IR-drop</strong> analysis of real power-grid
-        networks — driven by realistic spatial thermal maps, Joule heating, iterative resistance
-        feedback, and Monte&nbsp;Carlo lifetime prediction.
+        NovaEM tells you where your power grid will fail and when — accounting for
+        <strong>electromigration</strong>, <strong>thermomigration</strong>, and
+        <strong>IR-drop</strong> together, on the full chip. Two engines share the same physics:
+        one exact enough to sign off on, one fast enough to run on every iteration.
       </p>
       <div class="hero-cta">
-        <a href="#results" class="btn btn-primary">
-          See the results
+        <a href="#engines" class="btn btn-primary">
+          See how it works
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
-        <a href="#how" class="btn btn-ghost">How it works</a>
+        <a href="#ai" class="btn btn-ghost">See the speed</a>
       </div>
       <div class="hero-stats">
-        <div class="hstat"><div class="n">1.18&ndash;1.50&times;</div><div class="l">Krylov speedup, zero metric error</div></div>
-        <div class="hstat"><div class="n">6</div><div class="l">industrial-scale designs validated</div></div>
-        <div class="hstat"><div class="n">10,900</div><div class="l">stress nodes per tree resolved</div></div>
+        <div class="hstat"><div class="n">up to 86&times;</div><div class="l">faster with AI</div></div>
+        <div class="hstat"><div class="n">&lt;0.05<span style="font-size:1.1rem">%</span></div><div class="l">difference vs. exact</div></div>
+        <div class="hstat"><div class="n">6</div><div class="l">designs validated</div></div>
       </div>
     </div>
 
     <!-- mini chip thermal viz -->
     <div class="chip-card">
-      <h4>Full-chip stress &amp; void map</h4>
-      <div class="sub">Coupled EM/TM stress over an extracted power grid</div>
+      <h4>Full-chip failure map</h4>
+      <div class="sub">Where the damage builds across a real power grid</div>
       <svg viewBox="0 0 320 220" width="100%" role="img" aria-label="Illustrative full-chip stress and void distribution map">
         <defs>
           <linearGradient id="hot" x1="0" y1="0" x2="1" y2="1">
@@ -345,10 +423,10 @@
         </g>
       </svg>
       <div class="legend">
-        <span><i style="background:#3b6cff"></i>low stress</span>
-        <span><i style="background:#ffb020"></i>tensile</span>
-        <span><i style="background:#ff4d4d"></i>nucleation hotspot</span>
-        <span><i style="background:#fff;border:2px solid #ff4d4d;border-radius:50%"></i>void site</span>
+        <span><i style="background:#3b6cff"></i>healthy</span>
+        <span><i style="background:#ffb020"></i>at risk</span>
+        <span><i style="background:#ff4d4d"></i>hotspot</span>
+        <span><i style="background:#fff;border:2px solid #ff4d4d;border-radius:50%"></i>failure point</span>
       </div>
     </div>
   </div>
@@ -359,69 +437,133 @@
   <div class="wrap">
     <div class="section-head center">
       <div class="eyebrow">Why NovaEM</div>
-      <h2>The first full-chip EM-IR flow that treats thermal structure as a first-order effect</h2>
+      <h2>Physics-exact where it must be. AI-accelerated where it pays.</h2>
       <p>
-        Traditional EM models (Black's equation, Blech's limit) are over-conservative, and even
-        physics-based Korhonen solvers usually assume a uniform die temperature. NovaEM closes that
-        gap — it jointly incorporates Joule heating, practical chip-level thermal maps, coupled EM/TM
-        stress evolution, iterative resistance feedback, and Monte&nbsp;Carlo lifetime prediction in a single
-        sign-off-ready flow.
+        Classic electromigration rules are over-conservative, so designs get overbuilt to pass them.
+        NovaEM replaces the rules with real physics — the actual heat, current, and stress your chip
+        will see — and then makes that analysis fast enough to run whenever you want it, not just
+        once at the end.
       </p>
     </div>
     <div class="kpi-row">
-      <div class="kpi"><div class="n">EM&nbsp;+&nbsp;TM&nbsp;+&nbsp;IR</div><div class="l">Coupled multiphysics, not isolated Korhonen solves</div></div>
-      <div class="kpi"><div class="n">0<span class="u">%</span></div><div class="l">Krylov metric error vs. full FDTD reference</div></div>
-      <div class="kpi"><div class="n">100</div><div class="l">Monte Carlo samples per design for statistical TTF</div></div>
-      <div class="kpi"><div class="n">EDA</div><div class="l">Open-source OpenROAD + Synopsys ICC / Fusion Compiler</div></div>
+      <div class="kpi"><div class="n">EM&nbsp;+&nbsp;TM&nbsp;+&nbsp;IR</div><div class="l">One coupled analysis, not three disconnected tools</div></div>
+      <div class="kpi"><div class="n">2</div><div class="l">Engines — one physics-exact, one AI-accelerated</div></div>
+      <div class="kpi"><div class="n">145<span class="u">&times;</span></div><div class="l">Faster reliability analysis than commercial tools</div></div>
+      <div class="kpi"><div class="n">EDA</div><div class="l">Works with OpenROAD and Synopsys flows</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HYBRID ENGINES -->
+<section id="engines">
+  <div class="wrap">
+    <div class="section-head center">
+      <div class="eyebrow">How NovaEM is built</div>
+      <h2>One physics. Two engines.</h2>
+      <p>
+        Same physics, two ways to run it. Pick the one your task needs — or use both:
+        explore fast with AI, confirm with the numerical engine.
+      </p>
+    </div>
+
+    <div class="engines">
+      <div class="engine num">
+        <span class="kicker">Engine 1 · Numerical</span>
+        <h3>NovaEM Core</h3>
+        <p class="role">Your golden reference for full-chip sign-off.</p>
+        <ul>
+          <li><b>Physics-exact.</b> Every result traces back to first-principles simulation you can defend in a review.</li>
+          <li><b>Full chip, not samples.</b> Validated on six industrial-scale designs, up to 10,900 nodes per net.</li>
+          <li><b>Sees aging happen.</b> Watch IR-drop degrade over the product lifetime and know exactly when it crosses your limit.</li>
+        </ul>
+        <div class="foot">Use it for: sign-off, lifetime guarantees, reliability reports.</div>
+      </div>
+
+      <div class="engine ai">
+        <span class="kicker">Engine 2 · AI-accelerated</span>
+        <h3>NovaEM-PINN</h3>
+        <p class="role">The same answers, fast enough to use every day.</p>
+        <ul>
+          <li><b>Up to 86× faster</b> than the numerical engine, and up to 243× faster than commercial tools.</li>
+          <li><b>Within 0.05% of the reference.</b> Speed that costs you accuracy isn't speed you can use.</li>
+          <li><b>Answers in a range, not a number.</b> Real manufacturing variation built in, so you see best case and worst case together.</li>
+        </ul>
+        <div class="foot">Use it for: design exploration, what-if sweeps, automated design loops.</div>
+      </div>
+    </div>
+
+    <div class="handoff">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>
+      <p>
+        <b>The AI engine isn't a black box — it's measured against the real one.</b>
+        NovaEM-PINN is built and checked against NovaEM Core, so every fast answer comes with a known
+        margin against physics-exact results, and anything important can be re-run the slow way to
+        confirm. That's the difference between AI you can sign off on and AI you can only explore with.
+      </p>
     </div>
   </div>
 </section>
 
 <!-- CAPABILITIES -->
-<section id="capabilities">
+<section class="soft" id="capabilities">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Capabilities</div>
       <h2>What NovaEM can do</h2>
-      <p>A complete design-to-failure pipeline for power-grid reliability, built for realistic full-chip designs.</p>
+      <p>Everything you need to know whether your power grid survives its service life — and what to change if it doesn't.</p>
     </div>
     <div class="cards">
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg></div>
-        <h3>Coupled EM / TM / IR-drop</h3>
-        <p>Solves the discretized Korhonen stress equation coupled with an MNA IR-drop solver, capturing electromigration and thermomigration together with the electrical network.</p>
+        <h3>One coupled analysis</h3>
+        <p>Electromigration, thermomigration, and IR-drop analyzed as one connected problem — because on real silicon they are one connected problem.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M3 21h18"/></svg></div>
-        <h3>Realistic spatial thermal maps</h3>
-        <p>Accepts external chip-level temperature maps (including real measured profiles) instead of assuming a uniform die — spatial hotspot alignment can dominate average temperature in setting reliability.</p>
+        <h3>Your chip's real heat map</h3>
+        <p>Feed NovaEM the real temperature map of your chip, including measured profiles. Where the hotspots sit matters more than how hot the die runs on average.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.7V17a2 2 0 002 2h4a2 2 0 002-2v-2.3A7 7 0 0012 2z"/><path d="M9 21h6"/></svg></div>
-        <h3>Joule self-heating</h3>
-        <p>Computes per-node, per-segment wire temperature from current density and path resistance, resolving localized self-heating peaks superimposed on the ambient field.</p>
+        <h3>Self-heating, captured</h3>
+        <p>Wires heat themselves as current flows through them. NovaEM finds those local hotspots instead of averaging them away.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg></div>
-        <h3>Iterative resistance feedback</h3>
-        <p>Closes the electrical–thermal–reliability loop: void-driven resistance changes are written back to the netlist so every IR-drop solve reflects the current aging state of the grid.</p>
+        <h3>Aging that feeds back</h3>
+        <p>As wires age and degrade, the analysis updates itself — so you see how the power grid actually behaves years into the product's life, not just on day one.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M8 8h2M8 12h6M14 8h2"/></svg></div>
-        <h3>Monte Carlo lifetime prediction</h3>
-        <p>Re-runs the full pipeline across sampled material parameters to produce TTF <em>distributions</em>, not just a single number — revealing strongly design-dependent variation sensitivity.</p>
+        <h3>Lifetime with odds attached</h3>
+        <p>Get lifetime as a range with real odds attached, not a single pessimistic number you have to guess a margin around.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></div>
-        <h3>Synopsys &amp; OpenROAD integration</h3>
-        <p>Operates on power-grid netlists from both the open-source <strong>OpenROAD</strong> flow and Synopsys ICC / Fusion Compiler, retaining via resistances for accurate early-failure assessment — validated on six industrial-scale designs.</p>
+        <h3>Fits your existing flow</h3>
+        <p>Drops into the flow you already run — open-source <strong>OpenROAD</strong> or Synopsys ICC / Fusion Compiler. Validated on six industrial-scale designs.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><path d="M12 7v10M7 12h10M6.5 10.5l4-4M17.5 10.5l-4-4M6.5 13.5l4 4M17.5 13.5l-4 4"/></svg></div>
+        <h3>The NovaEM-PINN AI engine</h3>
+        <p>An AI engine that learns the physics rather than memorizing past results — so it stays accurate on designs it has never seen. <strong>Up to 86× faster</strong>, within <strong>0.05%</strong> of the reference.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18c3 0 3-9 6-9s3 9 6 9 3-9 6-9"/><path d="M3 21h18"/></svg></div>
+        <h3>Confidence, built in</h3>
+        <p>Every answer arrives with its own confidence range attached — no separate statistical run, and 145× faster than the commercial-tool equivalent.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20v-4"/><path d="M2 20h20"/></svg></div>
+        <h3>Built for real-world variation</h3>
+        <p>Manufacturing spread, temperature swings, and changing workloads are part of the model — so you design for what will actually ship, not the worst corner stacked on worst corner.</p>
       </div>
       <div class="card feature">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg></div>
         <div class="ftxt">
           <span class="tagline">Agentic-ready</span>
           <h3>Fully agentic-flow aware</h3>
-          <p>A scriptable command-line interface and structured data interface make NovaEM fully agentic-flow aware — it plugs into any agentic EDA flow to drive automated, closed-loop IR-drop and EM sign-off analysis, with every input and output exposed for programmatic control by AI agents and orchestration scripts.</p>
+          <p>Every input and output is scriptable, so NovaEM plugs straight into automated and AI-driven design flows — closing the loop on IR-drop and EM sign-off without a human in the middle.</p>
         </div>
       </div>
     </div>
@@ -429,46 +571,131 @@
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="soft" id="how">
+<section id="how">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow">Inside the framework</div>
-      <h2>How the analysis flows</h2>
-      <p>From extracted netlist to aging trajectory in a single coupled loop — with optional steady-state screening and Krylov acceleration on the heavy trees.</p>
+      <div class="eyebrow">The workflow</div>
+      <h2>Point it at your design. Get an answer.</h2>
+      <p>No new methodology to learn and no model to hand-build — NovaEM takes the power grid you already have and tells you where it fails, and when.</p>
     </div>
     <div class="flow">
       <div class="steps">
-        <div class="step"><div class="num"></div><div><h4>Parse inputs</h4><p>Power-grid netlist, a YAML of material/solver parameters, and an optional spatial thermal map.</p></div></div>
-        <div class="step"><div class="num"></div><div><h4>Immortality screening</h4><p>An optional steady-state pass prunes trees that can never fail, concentrating compute on mortal trees.</p></div></div>
-        <div class="step"><div class="num"></div><div><h4>IR-drop + thermal solve</h4><p>MNA returns nodal voltages and branch current densities; the thermal field is loaded and cached per step.</p></div></div>
-        <div class="step"><div class="num"></div><div><h4>Transient stress (FDTD)</h4><p>Per tree, the solver evolves hydrostatic stress, tracks void nucleation &amp; growth — big trees via rational Krylov, small trees via backward Euler.</p></div></div>
-        <div class="step"><div class="num"></div><div><h4>Resistance update &amp; loop</h4><p>Via-aware early/late failure updates are written back to the netlist, closing the loop into the next aging step.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>Hand it your design</h4><p>The power grid from your existing layout, plus a heat map if you have one.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>It skips what can't fail</h4><p>A fast first pass sets aside the nets that will never break, so the real compute goes where the risk is.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>It ages your chip</h4><p>NovaEM runs your grid forward through its service life, tracking how heat, current, and wear compound on each other.</p></div></div>
+        <div class="step"><div class="num"></div><div><h4>You get the failure picture</h4><p>Where voids form, how far IR-drop has drifted, and the date your design crosses the limit you set.</p></div></div>
+        <div class="step" style="border-color:#bfe9e0;background:linear-gradient(135deg,rgba(0,194,168,.07),rgba(59,108,255,.05))"><div class="num" style="background:linear-gradient(135deg,var(--brand-2),#0aa)">AI</div><div><h4>Or run it the fast way</h4><p>Switch on NovaEM-PINN and the same analysis returns in seconds instead of hours — same inputs, same outputs, no change to how you work.</p></div></div>
       </div>
       <div>
         <div class="tech-grid">
           <div class="tech">
-            <span class="tag">Acceleration</span>
-            <h4>Rational Krylov subspace</h4>
-            <p>Projects each <em>n</em>-node stress system onto an order-<em>q</em> subspace (<code>q&nbsp;&lt;&lt;&nbsp;n</code>). A shifted resolvent regularizes the Neumann singularity for stable convergence, dispatched only when <code>n&nbsp;&ge;&nbsp;max(3q,30)</code>.</p>
-          </div>
-          <div class="tech">
-            <span class="tag">Novelty</span>
-            <h4>Robin-BC mid-tree nucleation</h4>
-            <p>Enforces the zero-flux void condition at interior junction nodes via a Robin stencil — no dynamic tree splitting or matrix re-meshing at runtime.</p>
-          </div>
-          <div class="tech">
             <span class="tag">Accuracy</span>
-            <h4>Via-aware early failure</h4>
-            <p>Retains via resistances through netlist conversion and checks early-failure (open-circuit) conditions <em>continuously</em> during void growth, not just at nucleation.</p>
+            <h4>Catches early failures</h4>
+            <p>Vias are where power grids break first. NovaEM keeps watching them the whole time a void grows, instead of writing them off at the first sign of damage.</p>
           </div>
           <div class="tech">
-            <span class="tag">Performance</span>
-            <h4>Cache, vectorize, batch-lift</h4>
-            <p>LRU basis caching, loop-free vectorized time stepping on uniform grids, and a single BLAS <code>dgemm</code> batch lift back to full space.</p>
+            <span class="tag">Scale</span>
+            <h4>Built for full chips</h4>
+            <p>The largest validated design — 208 nets, up to 10,900 nodes each — completes in about 30 seconds. Small blocks finish in under two.</p>
+          </div>
+          <div class="tech" style="border-color:#bfe9e0">
+            <span class="tag">AI engine</span>
+            <h4>Learns physics, not examples</h4>
+            <p>NovaEM-PINN is trained on the governing physics itself, so it holds up on designs it has never seen — the usual failure mode of AI tools trained only on past results.</p>
+          </div>
+          <div class="tech" style="border-color:#bfe9e0">
+            <span class="tag">AI engine</span>
+            <h4>Trained once, reused forever</h4>
+            <p>Training happens on our side, once. You get inference — seconds per run, no GPU cluster and no data-collection project on your end.</p>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- AI ENGINE / NovaEM-PINN -->
+<section class="dark" id="ai">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">NovaEM-PINN · AI-accelerated engine</div>
+      <h2>Hours of analysis, done in seconds</h2>
+      <p>
+        Understanding how manufacturing variation affects chip lifetime is the most expensive
+        question a reliability flow can ask — which is why most teams skip it. NovaEM-PINN makes
+        it routine. Here is the same analysis run three ways, on structures from small to large.
+      </p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">86<span class="u">&times;</span></div><div class="l">Faster than our own numerical engine</div></div>
+      <div class="kpi"><div class="n">243<span class="u">&times;</span></div><div class="l">Faster than commercial tools</div></div>
+      <div class="kpi"><div class="n">&lt;0.05<span class="u">%</span></div><div class="l">Difference from the physics-exact answer</div></div>
+      <div class="kpi"><div class="n">&lt;1<span class="u">s</span></div><div class="l">Per run, even on the largest structures</div></div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:34px">
+      <table>
+        <caption>Time to complete a full variation-aware reliability analysis, small structures to large.</caption>
+        <thead>
+          <tr>
+            <th>Structure size</th>
+            <th>Commercial tool</th>
+            <th>NovaEM</th>
+            <th>NovaEM-PINN</th>
+            <th>Speedup</th>
+            <th>Difference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Small</td><td>22 min</td><td>7.6 min</td><td>0.25 s</td><td><span class="pill green">86&times;</span></td><td>0.02%</td></tr>
+          <tr><td>Medium</td><td>37 min</td><td>12.7 min</td><td>0.43 s</td><td><span class="pill green">77&times;</span></td><td>0.03%</td></tr>
+          <tr><td>Large</td><td>50 min</td><td>17.2 min</td><td>0.39 s</td><td><span class="pill green">63&times;</span></td><td>0.03%</td></tr>
+          <tr><td>Very large</td><td>60 min</td><td>22.2 min</td><td>0.61 s</td><td><span class="pill green">46&times;</span></td><td>0.04%</td></tr>
+          <tr><td>Largest</td><td>69 min</td><td>25.4 min</td><td>0.80 s</td><td><span class="pill green">36&times;</span></td><td>0.04%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="result-grid" style="margin-top:28px">
+      <div class="panel">
+        <h3>An hour of waiting becomes 20 seconds</h3>
+        <div class="sub">Full variation-aware reliability analysis, end to end</div>
+        <div class="table-wrap" style="margin-top:14px">
+          <table style="min-width:0">
+            <thead><tr><th>Method</th><th>Time</th><th>Speedup</th></tr></thead>
+            <tbody>
+              <tr><td>Commercial tool</td><td>48 min</td><td>1&times;</td></tr>
+              <tr><td>NovaEM</td><td>17 min</td><td><span class="pill blue">2.8&times;</span></td></tr>
+              <tr><td>NovaEM-PINN</td><td>20 sec</td><td><span class="pill green">145&times;</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="insight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+          <p>That is the difference between an analysis you schedule overnight and one you run <b>every time you change the design</b>.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Speed you don't pay for in accuracy</h3>
+        <div class="sub">How far NovaEM-PINN sits from the physics-exact answer</div>
+        <div class="kpi-row" style="grid-template-columns:1fr 1fr">
+          <div class="kpi"><div class="n">0.02<span class="u">%</span></div><div class="l">Typical difference on a single wire</div></div>
+          <div class="kpi"><div class="n">0.04<span class="u">%</span></div><div class="l">Worst case across every structure tested</div></div>
+        </div>
+        <div class="insight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+          <p>Four hundredths of a percent, on structures with hundreds of segments. For every decision you'd make from this analysis, the fast answer and the exact answer are <b>the same answer</b>.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top:22px;font-size:.88rem">
+      Published and peer-reviewed at ICCAD&nbsp;2024
+      (<a href="https://sheldonucr.github.io/published_papers/iccad24_bpinn_stochastic_electromigration.pdf" style="color:#7aa2ff">read the paper</a>).
+      Commercial-tool comparison run against COMSOL. The engine named “EMSpice” in the paper is NovaEM.
+    </p>
   </div>
 </section>
 
@@ -477,60 +704,60 @@
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Results</div>
-      <h2>Spatial thermal structure changes the verdict</h2>
-      <p>Across real designs, equal-average thermal profiles produce different mortal-tree counts, void locations, and time-to-failure — proving that average temperature alone is insufficient for sign-off.</p>
+      <h2>Average temperature hides the answer</h2>
+      <p>Two chips running at the same average temperature can have completely different lifetimes. What matters is <em>where</em> the heat sits relative to where the current flows — and that is exactly what rule-based EM checks cannot see.</p>
     </div>
 
     <div class="result-grid">
       <!-- RISC-V table -->
       <div class="panel">
-        <h3>RISC-V core &mdash; thermal profile sweep</h3>
-        <div class="sub">186 trees · 4 metal layers · 0.95 V · TTF = time to cross the 10% IR-drop threshold</div>
+        <h3>RISC-V core</h3>
+        <div class="sub">Same design, seven different heat patterns</div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Thermal profile</th><th>Avg&nbsp;(K)</th><th>Max&nbsp;(K)</th><th>Mortal</th><th>TTF&nbsp;(s)</th></tr>
+              <tr><th>Heat pattern</th><th>Average</th><th>Hotspot</th><th>Nets at risk</th><th>Lifetime</th></tr>
             </thead>
             <tbody>
-              <tr><td>Uniform 353K</td><td>353.0</td><td>353.0</td><td>7</td><td>1.32&times;10⁷</td></tr>
-              <tr><td>Joule (avg 320K)</td><td>320.6</td><td>345.9</td><td>14</td><td>3.01&times;10⁷</td></tr>
-              <tr><td>Joule (avg 353K)</td><td>353.4</td><td>387.1</td><td>18</td><td>2.47&times;10⁷</td></tr>
-              <tr><td>Joule (avg 373K)</td><td>373.6</td><td>407.3</td><td>18</td><td>1.45&times;10⁷</td></tr>
-              <tr><td>Qualcomm (avg 309K)</td><td>309.6</td><td>336.9</td><td>12</td><td>1.87&times;10⁷</td></tr>
-              <tr><td>Qualcomm (avg 353K)</td><td>353.2</td><td>387.6</td><td>16</td><td><span class="pill green">no fail</span></td></tr>
-              <tr><td>Qualcomm (avg 373K)</td><td>373.4</td><td>407.7</td><td>16</td><td><span class="pill green">no fail</span></td></tr>
+              <tr><td>Flat 353K</td><td>353K</td><td>353K</td><td>7</td><td>5.0 months</td></tr>
+              <tr><td>Self-heating, cool</td><td>321K</td><td>346K</td><td>14</td><td>11.5 months</td></tr>
+              <tr><td>Self-heating, typical</td><td>353K</td><td>387K</td><td>18</td><td>9.4 months</td></tr>
+              <tr><td>Self-heating, hot</td><td>374K</td><td>407K</td><td>18</td><td>5.5 months</td></tr>
+              <tr><td>Measured chip, cool</td><td>310K</td><td>337K</td><td>12</td><td>7.1 months</td></tr>
+              <tr><td>Measured chip, typical</td><td>353K</td><td>388K</td><td>16</td><td><span class="pill green">passes</span></td></tr>
+              <tr><td>Measured chip, hot</td><td>373K</td><td>408K</td><td>16</td><td><span class="pill green">passes</span></td></tr>
             </tbody>
           </table>
         </div>
         <div class="insight">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-          <p>Two 353K maps with nearly identical max temperature (387.1K vs 387.6K) give <b>opposite outcomes</b> — the baseline map fails at ~9.4 months while the broad Qualcomm map never crosses the threshold, because its hotspot doesn't align with the critical current paths.</p>
+          <p>Look at rows three and six: <b>same average temperature, same peak temperature, opposite outcomes</b>. One design fails in nine months. The other passes. The only difference is where the hotspot lands.</p>
         </div>
       </div>
 
       <!-- ARM table -->
       <div class="panel">
-        <h3>ARM Cortex-A logic core &mdash; thermal sweep</h3>
-        <div class="sub">208 trees · up to 10,900 nodes/tree · 1.2 V · deeply mortal current-density regime</div>
+        <h3>ARM Cortex-A core</h3>
+        <div class="sub">A design already running hard — and what that costs</div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Thermal profile</th><th>Avg&nbsp;(K)</th><th>Max&nbsp;(K)</th><th>Mortal</th><th>TTF&nbsp;(s)</th></tr>
+              <tr><th>Heat pattern</th><th>Average</th><th>Hotspot</th><th>Nets at risk</th><th>Lifetime</th></tr>
             </thead>
             <tbody>
-              <tr><td>Uniform 353K</td><td>353.0</td><td>353.0</td><td>207</td><td>1.05&times;10⁷</td></tr>
-              <tr><td>Joule (avg 320K)</td><td>320.4</td><td>352.7</td><td>206</td><td>1.04&times;10⁷</td></tr>
-              <tr><td>Joule (avg 353K)</td><td>353.1</td><td>385.4</td><td>206</td><td>1.05&times;10⁷</td></tr>
-              <tr><td>Joule (avg 373K)</td><td>373.3</td><td>405.6</td><td>206</td><td>1.05&times;10⁷</td></tr>
-              <tr><td>Qualcomm (avg 309K)</td><td>309.6</td><td>341.8</td><td>206</td><td>1.01&times;10⁷</td></tr>
-              <tr><td>Qualcomm (avg 353K)</td><td>353.2</td><td>385.4</td><td>206</td><td>1.00&times;10⁷</td></tr>
-              <tr><td>Qualcomm (avg 373K)</td><td>373.4</td><td>405.6</td><td>206</td><td>1.00&times;10⁷</td></tr>
+              <tr><td>Flat 353K</td><td>353K</td><td>353K</td><td>207</td><td>4.0 months</td></tr>
+              <tr><td>Self-heating, cool</td><td>320K</td><td>353K</td><td>206</td><td>4.0 months</td></tr>
+              <tr><td>Self-heating, typical</td><td>353K</td><td>385K</td><td>206</td><td>4.0 months</td></tr>
+              <tr><td>Self-heating, hot</td><td>373K</td><td>406K</td><td>206</td><td>4.0 months</td></tr>
+              <tr><td>Measured chip, cool</td><td>310K</td><td>342K</td><td>206</td><td>3.8 months</td></tr>
+              <tr><td>Measured chip, typical</td><td>353K</td><td>385K</td><td>206</td><td>3.8 months</td></tr>
+              <tr><td>Measured chip, hot</td><td>373K</td><td>406K</td><td>206</td><td>3.8 months</td></tr>
             </tbody>
           </table>
         </div>
         <div class="insight">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-          <p>With ~206 deeply mortal trees, M1 current densities push nearly the entire grid far past the nucleation threshold. The TTF stays clamped near <b>10⁷ s</b> even as max temperature ranges over 60K — a regime where the failure time is deterministic.</p>
+          <p>This design carries so much current that <b>almost every net is at risk no matter how you cool it</b> — the lifetime barely moves across a 60-degree range. Cooling won't save this one; the grid needs redesigning, and NovaEM shows you that before tape-out.</p>
         </div>
       </div>
     </div>
@@ -538,29 +765,33 @@
     <!-- Monte Carlo -->
     <div class="result-grid" style="margin-top:28px">
       <div class="panel">
-        <h3>Monte Carlo statistical lifetime</h3>
-        <div class="sub">100 samples · 20% CoV on EM diffusivity κ(x) and critical stress · 353K Joule map</div>
+        <h3>How much does manufacturing spread matter?</h3>
+        <div class="sub">100 runs per design, with realistic material variation</div>
         <div class="kpi-row" style="grid-template-columns:1fr 1fr">
-          <div class="kpi"><div class="n">15.77<span class="u">%</span></div><div class="l">TTF coefficient of variation — RISC-V core (18 mortal trees)</div></div>
-          <div class="kpi"><div class="n">0.0058<span class="u">%</span></div><div class="l">TTF coefficient of variation — ARM core (206 mortal trees)</div></div>
+          <div class="kpi"><div class="n">±16<span class="u">%</span></div><div class="l">Lifetime spread — RISC-V core</div></div>
+          <div class="kpi"><div class="n">±0.006<span class="u">%</span></div><div class="l">Lifetime spread — ARM core</div></div>
         </div>
         <div class="insight">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
-          <p>Variation sensitivity is <b>design-dependent</b>. Designs with a few <em>marginally</em> mortal trees benefit most from statistical analysis; deeply mortal designs are nearly deterministic. For RISC-V, 87/100 runs failed (TTF 0.60&ndash;1.23 yr) and 13 were censored at the simulation horizon.</p>
+          <p>It depends entirely on the design — which is why you have to measure it. The RISC-V core's lifetime swings between <b>7 and 15 months</b> depending on how the silicon comes out. The ARM core lands in the same place every time. Guessing a margin would leave one over-designed and the other exposed.</p>
         </div>
       </div>
 
       <!-- Speedup chart -->
       <div class="panel">
-        <h3>Rational Krylov speedup</h3>
-        <div class="sub">Wall-clock vs. full FDTD reference · zero TTF / final-IR metric error</div>
+        <h3>Even the exact engine is fast</h3>
+        <div class="sub">Speedup from built-in acceleration, with identical results</div>
         <div style="margin-top:6px">
-          <div class="bar-row"><span class="lab">dual_ram</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="val">1.50&times;</span></div>
-          <div class="bar-row"><span class="lab">armcore_logic</span><div class="bar-track"><div class="bar-fill" style="width:86%"></div></div><span class="val">1.29&times;</span></div>
-          <div class="bar-row"><span class="lab">JPEG_new</span><div class="bar-track"><div class="bar-fill" style="width:84%"></div></div><span class="val">1.26&times;</span></div>
-          <div class="bar-row"><span class="lab">AES_new</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">1.21&times;</span></div>
-          <div class="bar-row"><span class="lab">risc_core</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">1.21&times;</span></div>
-          <div class="bar-row"><span class="lab">armcore_pad</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div><span class="val">1.18&times;</span></div>
+          <div class="bar-row"><span class="lab">Dual RAM</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="val">1.50&times;</span></div>
+          <div class="bar-row"><span class="lab">ARM logic core</span><div class="bar-track"><div class="bar-fill" style="width:86%"></div></div><span class="val">1.29&times;</span></div>
+          <div class="bar-row"><span class="lab">JPEG codec</span><div class="bar-track"><div class="bar-fill" style="width:84%"></div></div><span class="val">1.26&times;</span></div>
+          <div class="bar-row"><span class="lab">AES engine</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">1.21&times;</span></div>
+          <div class="bar-row"><span class="lab">RISC-V core</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">1.21&times;</span></div>
+          <div class="bar-row"><span class="lab">ARM pad ring</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div><span class="val">1.18&times;</span></div>
+        </div>
+        <div class="insight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+          <p>Acceleration that changes your answer isn't worth having. These runs return <b>identical lifetime and IR-drop numbers</b> to the unaccelerated solve — the speed is free.</p>
         </div>
       </div>
     </div>
@@ -572,48 +803,48 @@
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Result gallery</div>
-      <h2>From layout to failure, visualized</h2>
-      <p>Actual NovaEM output on the RISC-V and ARM Cortex-A power grids — extracted grids, coupled EM/TM stress maps, IR-drop maps, input thermal fields, and Monte&nbsp;Carlo lifetime distributions.</p>
+      <h2>See exactly where it breaks</h2>
+      <p>Real NovaEM output on RISC-V and ARM Cortex-A power grids — not a diagram of what the tool could show you.</p>
     </div>
     <div class="gallery">
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/risc_core_finished_layout.png" alt="RISC-V core finished physical layout" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>RISC-V core — finished layout</b>9 standard-cell blocks, 11 routing layers, ~0.104&nbsp;mm² die.</figcaption>
+        <figcaption><b>The design under test</b>A real RISC-V core, placed and routed.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/risc_core_baseline_Design.png" alt="Extracted VDD power grid structure" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>Extracted VDD power grid</b>Four metal layers (M1, M2, M7, M8) with VIA connections.</figcaption>
+        <figcaption><b>Its power grid</b>Pulled straight out of the layout — nothing hand-built.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/risc_core_baseline_Thermal_Map_Scaled.png" alt="Input spatial temperature map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>Input spatial thermal map</b>Localized lower-left hotspot at 353&nbsp;K average (baseline case).</figcaption>
+        <figcaption><b>Where the heat is</b>A hotspot in the lower left, at 353K average.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/risc_core_strss_map_3D_353.png" alt="3D coupled EM/TM stress map with nucleation sites" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>3D EM/TM stress map (RISC-V)</b>18 mortal trees with void nucleation sites at 5&times;10⁷&nbsp;s.</figcaption>
+        <figcaption><b>Where the damage forms</b>18 nets at risk, with the failure points marked.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/risc_core_pg_ir_drop_3d_353.png" alt="3D IR-drop map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>3D IR-drop map (RISC-V)</b>Degraded grid at t&nbsp;=&nbsp;2.5&times;10⁷&nbsp;s — 10% threshold crossed at ~9.4&nbsp;months.</figcaption>
+        <figcaption><b>What it costs you</b>The same grid nine months in, past its voltage limit.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/risc_core_stress_map_steady_state_353.png" alt="Steady-state stress without nucleation" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>Steady-state stress (no nucleation)</b>Unbounded accumulation reveals the most EM-susceptible segments.</figcaption>
+        <figcaption><b>Your weakest links</b>The wires under the most strain, ranked.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/armcore_baseline_Stress_Map.png" alt="ARM core stress map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>ARM Cortex-A stress map</b>206 nucleated trees with a strong central tensile band.</figcaption>
+        <figcaption><b>A grid in trouble</b>206 nets damaged, concentrated through the center.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/armcore_baseline_Voltage_Drop_Map.png" alt="ARM core IR-drop map" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>ARM Cortex-A IR-drop map</b>Max IR-drop 22.21%; failure at ~4.0&nbsp;months.</figcaption>
+        <figcaption><b>Failing at four months</b>Voltage drop more than doubled its budget.</figcaption>
       </figure>
       <figure class="shot">
         <div class="frame"><img loading="lazy" src="assets/figs/histogram_ttf_risc_core.png" alt="Monte Carlo TTF histogram for RISC-V" onerror="this.closest('figure').classList.add('missing')"><div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Result figure</div></div>
-        <figcaption><b>Monte Carlo TTF — RISC-V</b>100 runs, 20% CoV; 15.77% TTF CoV (87 failures, 13 censored).</figcaption>
+        <figcaption><b>Lifetime, with odds</b>100 runs showing the real spread, not one number.</figcaption>
       </figure>
     </div>
-    <p class="muted" style="margin-top:20px;font-size:.88rem">All figures are generated by NovaEM on Synopsys-extracted power grids (SAED32 32/28&nbsp;nm library).</p>
+    <p class="muted" style="margin-top:20px;font-size:.88rem">All figures generated by NovaEM on Synopsys-extracted power grids at 32/28&nbsp;nm.</p>
   </div>
 </section>
 
@@ -621,32 +852,31 @@
 <section id="benchmarks">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow">Benchmarks</div>
-      <h2>Validated across six industrial-scale designs</h2>
-      <p>Power-grid networks extracted from Synopsys Fusion Compiler, synthesized and placed-and-routed with the SAED32 (Synopsys 32/28&nbsp;nm Generic) library.</p>
+      <div class="eyebrow">Proven on real designs</div>
+      <h2>Six industrial-scale designs, start to finish</h2>
+      <p>Not toy test cases — real power grids pulled from Synopsys Fusion Compiler at 32/28&nbsp;nm.</p>
     </div>
     <div class="table-wrap">
       <table>
-        <caption>Per-design statistics, IR-drop, time-to-failure, and Krylov acceleration. TTF&nbsp;&gt;&nbsp;5.0&times;10⁷&nbsp;s indicates the 10% threshold was not reached within the simulated horizon.</caption>
+        <caption>What NovaEM found in each design, and how long it took.</caption>
         <thead>
           <tr>
-            <th>Design</th><th>Trees</th><th>Max&nbsp;br.</th><th>Max&nbsp;nodes</th>
-            <th>Init&nbsp;IR&nbsp;%</th><th>Final&nbsp;IR&nbsp;%</th><th>TTF&nbsp;(s)</th>
-            <th>Mortal</th><th>Base&nbsp;(s)</th><th>Krylov&nbsp;(s)</th><th>Speedup</th><th>Err&nbsp;%</th>
+            <th>Design</th><th>Size</th><th>Voltage drop, new</th><th>Voltage drop, aged</th>
+            <th>Lifetime</th><th>Analysis time</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>AES_new</td><td>97</td><td>69</td><td>3,450</td><td>6.14</td><td>6.86</td><td>&gt;5.0&times;10⁷</td><td>688</td><td>4.56</td><td>3.76</td><td><span class="pill blue">1.21&times;</span></td><td>0</td></tr>
-          <tr><td>armcore_pad</td><td>68</td><td>34</td><td>1,700</td><td>0.29</td><td>0.29</td><td>&gt;5.0&times;10⁷</td><td>0</td><td>2.35</td><td>1.99</td><td><span class="pill blue">1.18&times;</span></td><td>0</td></tr>
-          <tr><td>JPEG_new</td><td>178</td><td>126</td><td>6,300</td><td>6.56</td><td>6.77</td><td>&gt;5.0&times;10⁷</td><td>1,821</td><td>16.31</td><td>12.90</td><td><span class="pill blue">1.26&times;</span></td><td>0</td></tr>
-          <tr><td>armcore_logic</td><td>208</td><td>218</td><td>10,900</td><td>8.85</td><td>22.21</td><td>1.05&times;10⁷</td><td>206</td><td>40.60</td><td>31.48</td><td><span class="pill blue">1.29&times;</span></td><td>0</td></tr>
-          <tr><td>dual_ram</td><td>55</td><td>29</td><td>1,450</td><td>0.09</td><td>0.10</td><td>&gt;5.0&times;10⁷</td><td>179</td><td>2.32</td><td>1.55</td><td><span class="pill blue">1.50&times;</span></td><td>0</td></tr>
-          <tr><td>risc_core</td><td>186</td><td>115</td><td>5,750</td><td>6.19</td><td>29.64</td><td>2.47&times;10⁷</td><td>18</td><td>5.40</td><td>4.45</td><td><span class="pill blue">1.21&times;</span></td><td>0</td></tr>
+          <tr><td>AES engine</td><td>97 nets</td><td>6.1%</td><td>6.9%</td><td><span class="pill green">passes</span></td><td>3.8 s</td></tr>
+          <tr><td>ARM pad ring</td><td>68 nets</td><td>0.3%</td><td>0.3%</td><td><span class="pill green">passes</span></td><td>2.0 s</td></tr>
+          <tr><td>JPEG codec</td><td>178 nets</td><td>6.6%</td><td>6.8%</td><td><span class="pill green">passes</span></td><td>12.9 s</td></tr>
+          <tr><td>Dual RAM</td><td>55 nets</td><td>0.1%</td><td>0.1%</td><td><span class="pill green">passes</span></td><td>1.6 s</td></tr>
+          <tr><td>RISC-V core</td><td>186 nets</td><td>6.2%</td><td>29.6%</td><td><span class="pill red">9.4 months</span></td><td>4.5 s</td></tr>
+          <tr><td>ARM logic core</td><td>208 nets</td><td>8.9%</td><td>22.2%</td><td><span class="pill red">4.0 months</span></td><td>31.5 s</td></tr>
         </tbody>
       </table>
     </div>
     <p class="muted" style="margin-top:18px;font-size:.9rem">
-      The largest design (armcore_logic — 208 trees, up to 10,900 nodes) completes in ~31.5&nbsp;s with Krylov acceleration; the smallest (dual_ram) finishes in under 1.6&nbsp;s. risc_core's final IR-drop jumps from 6.19% to 29.64% with only 18 mortal trees, underscoring that a few high-current trees can dominate degradation.
+      Two things stand out. First, <strong>speed</strong>: the largest design finishes in half a minute, the smallest in under two seconds — this is analysis you can run on every iteration, not once before tape-out. Second, <strong>where the risk hides</strong>: the RISC-V core looks healthy at 6.2% voltage drop on day one, then degrades to 29.6% — and only 18 of its 186 nets are responsible. A handful of overloaded wires can take down a grid that passes every check you'd run today.
     </p>
   </div>
 </section>
@@ -656,8 +886,8 @@
   <div class="wrap">
     <div class="cta-band">
       <div class="eyebrow" style="color:#7fe9d6">Get started</div>
-      <h2>Predictive full-chip EM-IR sign-off, unified</h2>
-      <p>Spatial thermal fields, resistance feedback, void-growth physics, and stochastic material variation — handled together, at full-chip scale.</p>
+      <h2>Find the failures before your customers do</h2>
+      <p>NovaEM is available now for evaluation. Bring us a design and we'll show you what it finds.</p>
       <div class="hero-cta" style="justify-content:center">
         <a href="mailto:noveetyai@noveetymanagement.com?subject=NovaEM%20%E2%80%94%20Access%20Request" class="btn btn-primary">Contact to Access</a>
         <a href="#results" class="btn btn-ghost">Explore the results</a>
@@ -676,25 +906,27 @@
           NovaEM
         </a>
         <p style="font-size:.92rem;max-width:360px">
-          A full-chip temperature-aware multiphysics framework for electromigration, thermomigration, and IR-drop analysis.
+          Know where your power grid will fail, and when — across the full chip, fast enough to run on every iteration.
         </p>
         <div class="chips">
           <span class="chip">Electromigration</span>
           <span class="chip">Thermomigration</span>
           <span class="chip">IR-drop</span>
-          <span class="chip">Monte Carlo TTF</span>
-          <span class="chip">Agentic CLI</span>
-          <span class="chip">Rational Krylov</span>
+          <span class="chip">AI-accelerated</span>
+          <span class="chip">Lifetime prediction</span>
+          <span class="chip">Full-chip scale</span>
+          <span class="chip">Scriptable</span>
           <span class="chip">OpenROAD</span>
-          <span class="chip">Synopsys ICC</span>
-          <span class="chip">Pure Python</span>
+          <span class="chip">Synopsys</span>
         </div>
       </div>
       <div>
         <h4>Explore</h4>
         <div class="foot-links">
+          <a href="#engines">The two engines</a>
           <a href="#capabilities">Capabilities</a>
           <a href="#how">How it works</a>
+          <a href="#ai">NovaEM-PINN</a>
           <a href="#results">Results</a>
           <a href="#benchmarks">Benchmarks</a>
         </div>
@@ -707,13 +939,13 @@
           <a href="https://noveety-ai.com">Noveety&nbsp;AI</a>
         </div>
         <div class="cite" style="margin-top:16px">
-          NovaEM is the new generation multiphysics EM/TM/IR engine from Noveety&nbsp;AI, validated on six industrial-scale power-grid designs.
+          NovaEM is the new generation reliability engine from Noveety&nbsp;AI — physics-exact analysis paired with AI acceleration, validated on six industrial-scale designs.
         </div>
       </div>
     </div>
     <div class="foot-bottom">
       <span>&copy; 2026 Noveety AI, Inc. All rights reserved.</span>
-      <span>NovaEM&trade; — full-chip multiphysics EM/TM/IR-drop analysis.</span>
+      <span>NovaEM&trade; — full-chip power grid reliability.</span>
     </div>
   </div>
 </footer>
