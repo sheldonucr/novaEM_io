@@ -23,9 +23,9 @@ the exact way to confirm.
 <p align="center">
   <img src="assets/figs/risc_core_strss_map_3D_353.png" alt="RISC-V coupled EM/TM stress map" width="32%">
   <img src="assets/figs/risc_core_pg_ir_drop_3d_353.png" alt="RISC-V IR-drop map" width="32%">
-  <img src="assets/figs/histogram_ttf_risc_core.png" alt="Monte Carlo TTF distribution" width="32%">
+  <img src="assets/figs/histogram_ttf_risc_core.png" alt="Lifetime distribution across 100 runs" width="32%">
 </p>
-<p align="center"><sub>RISC-V core: coupled EM/TM stress map (18 nucleation sites) · 3D IR-drop map · Monte Carlo TTF distribution (15.77% CoV).</sub></p>
+<p align="center"><sub>RISC-V core: where the damage forms (18 nets at risk) · voltage drop after aging · lifetime across 100 runs.</sub></p>
 
 ---
 
