@@ -12,7 +12,7 @@ MetalStack ships **two engines over one physics**:
 | Engine | Kind | Use it for |
 |---|---|---|
 | **MetalStack Core** | Physics-exact | Sign-off, lifetime guarantees, reliability reports |
-| **MetalStack-PINN** | AI-accelerated | Design exploration, what-if sweeps, automated design loops — up to 86× faster, within 0.05% of Core |
+| **MetalStack-AI (PINN)** | AI-accelerated | Design exploration, what-if sweeps, automated design loops — up to 86× faster, within 0.05% of Core |
 
 The AI engine doesn't replace the exact one — it's measured against it. Both solve the same
 physics, so every fast answer comes with a known margin, and anything important can be re-run
@@ -47,7 +47,7 @@ the exact way to confirm.
   and AI-driven design flows without a human in the middle.
 - **Fast, exactly** — built-in acceleration returns results 1.18×–1.50× faster with **identical**
   lifetime and IR-drop numbers.
-- **Faster still, with AI** — MetalStack-PINN runs the same analysis **up to 86× faster** than the
+- **Faster still, with AI** — MetalStack-AI runs the same analysis **up to 86× faster** than the
   exact engine and **up to 243× faster** than commercial tools, staying within **0.05%** of the
   exact answer.
 
@@ -64,7 +64,7 @@ the exact way to confirm.
 4. **You get the failure picture** — where damage forms, how far voltage drop has drifted, and
    the date your design crosses the limit you set.
 
-Switch on MetalStack-PINN and step 3 runs in seconds instead of hours — same inputs, same outputs,
+Switch on MetalStack-AI and step 3 runs in seconds instead of hours — same inputs, same outputs,
 no change to how you work.
 
 ---
@@ -88,11 +88,11 @@ The RISC-V core looks healthy at 6.2% voltage drop on day one, then degrades to 
 18 of its 186 nets are responsible. A handful of overloaded wires can take down a grid that
 passes every check you'd run today.
 
-### AI acceleration — MetalStack-PINN
+### AI acceleration — MetalStack-AI
 
 Time to complete a full variation-aware reliability analysis, small structures to large:
 
-| Structure size | Commercial tool | MetalStack | MetalStack-PINN | Speedup | Difference |
+| Structure size | Commercial tool | MetalStack | MetalStack-AI | Speedup | Difference |
 |---|---:|---:|---:|---:|---:|
 | Small      | 22 min | 7.6 min  | 0.25 s | **86×** | 0.02% |
 | Medium     | 37 min | 12.7 min | 0.43 s | **77×** | 0.03% |
@@ -101,7 +101,7 @@ Time to complete a full variation-aware reliability analysis, small structures t
 | Largest    | 69 min | 25.4 min | 0.80 s | **36×** | 0.04% |
 
 End to end, an analysis that takes a commercial tool 48 minutes takes MetalStack 17 minutes and
-MetalStack-PINN 20 seconds — a **145×** speedup. That is the difference between an analysis you
+MetalStack-AI 20 seconds — a **145×** speedup. That is the difference between an analysis you
 schedule overnight and one you run every time you change the design.
 
 Four hundredths of a percent, worst case. For every decision you'd make from this analysis,
