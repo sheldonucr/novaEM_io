@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal static file server for the NovaEM site.
+"""Minimal static file server for the MetalStack site.
 
 Serves an absolute directory and never calls os.getcwd(), so it works even
 when the process's working directory is on a restricted/external mount where
